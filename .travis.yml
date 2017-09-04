@@ -1,0 +1,12 @@
+language: scala
+
+scala:
+   - 2.12.3
+
+jdk:
+  - oraclejdk8
+
+sudo: false
+
+script:
+  - sbt clean coverage test coverageReport

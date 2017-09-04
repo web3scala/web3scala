@@ -1,6 +1,4 @@
-*.class
 *.log
 .idea/
 .DS_Store
-project/
 target/
