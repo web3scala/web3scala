@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/web3scala/web3scala.svg?branch=master)](https://travis-ci.org/web3scala/web3scala)
+[![codecov](https://codecov.io/gh/web3scala/web3scala/branch/master/graph/badge.svg)](https://codecov.io/gh/web3scala/web3scala)
+
 # web3scala
 _web3scala_ allows seamless integration with [Ethereum](https://www.ethereum.org) blockchain, using Scala programming 
 language.
