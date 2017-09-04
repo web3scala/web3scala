@@ -1,9 +1,6 @@
 package org.web3scala
 
-import dispatch._
-import org.json4s
 import org.json4s.DefaultFormats
-import org.json4s.JsonAST.JValue
 import org.web3scala.exception.InvalidBlockName
 import org.web3scala.http.{DispatchHttpClient, JValueHttpClient}
 import org.web3scala.json.{JacksonJsonMapper, JsonMapper}
@@ -113,97 +110,97 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
   }
 
 
-  def asyncWeb3ClientVersion: Future[JValue] = {
+  def asyncWeb3ClientVersion: AsyncResponse = {
     val rq = Request(method = "web3_clientVersion")
     executeAsync(rq)
   }
-  def asyncWeb3Sha3(data: String): Future[JValue] = {
+  def asyncWeb3Sha3(data: String): AsyncResponse = {
     val rq = Request(method = "web3_sha3", params = data :: Nil)
     executeAsync(rq)
   }
-  def asyncNetVersion: Future[JValue] = {
+  def asyncNetVersion: AsyncResponse = {
     val rq = Request(method = "net_version")
     executeAsync(rq)
   }
-  def asyncNetListening: Future[JValue] = {
+  def asyncNetListening: AsyncResponse = {
     val rq = Request(method = "net_listening")
     executeAsync(rq)
   }
-  def asyncNetPeerCount: Future[JValue] = {
+  def asyncNetPeerCount: AsyncResponse = {
     val rq = Request(method = "net_peerCount")
     executeAsync(rq)
   }
-  def asyncEthProtocolVersion: Future[JValue] = {
+  def asyncEthProtocolVersion: AsyncResponse = {
     val rq = Request(method = "eth_protocolVersion")
     executeAsync(rq)
   }
-  def asyncEthSyncing: Future[JValue] = {
+  def asyncEthSyncing: AsyncResponse = {
     val rq = Request(method = "eth_syncing")
     executeAsync(rq)
   }
-  def asyncEthCoinbase: Future[JValue] = {
+  def asyncEthCoinbase: AsyncResponse = {
     val rq = Request(method = "eth_coinbase")
     executeAsync(rq)
   }
-  def asyncEthMining: Future[JValue] = {
+  def asyncEthMining: AsyncResponse = {
     val rq = Request(method = "eth_mining")
     executeAsync(rq)
   }
-  def asyncEthHashrate: Future[JValue] = {
+  def asyncEthHashrate: AsyncResponse = {
     val rq = Request(method = "eth_hashrate")
     executeAsync(rq)
   }
-  def asyncEthGasPrice: Future[JValue] = {
+  def asyncEthGasPrice: AsyncResponse = {
     val rq = Request(method = "eth_gasPrice")
     executeAsync(rq)
   }
-  def asyncEthAccounts: Future[JValue] = {
+  def asyncEthAccounts: AsyncResponse = {
     val rq = Request(method = "eth_accounts")
     executeAsync(rq)
   }
-  def asyncEthBlockNumber: Future[JValue] = {
+  def asyncEthBlockNumber: AsyncResponse = {
     val rq = Request(method = "eth_blockNumber")
     executeAsync(rq)
   }
-  def asyncEthGetBalance(address: String, defaultBlock: Block): Future[JValue] = {
+  def asyncEthGetBalance(address: String, defaultBlock: Block): AsyncResponse = {
     val block = Service.blockValue(defaultBlock)
     val rq = Request(method = "eth_getBalance", params = address :: block :: Nil)
     executeAsync(rq)
   }
-  def asyncEthGetStorageAt(address: String, position: String, defaultBlock: Block): Future[JValue] = {
+  def asyncEthGetStorageAt(address: String, position: String, defaultBlock: Block): AsyncResponse = {
     val block = Service.blockValue(defaultBlock)
     val rq = Request(method = "eth_getStorageAt", params = address :: position:: block :: Nil)
     executeAsync(rq)
   }
-  def asyncEthGetTransactionCount(address: String, defaultBlock: Block): Future[JValue] = {
+  def asyncEthGetTransactionCount(address: String, defaultBlock: Block): AsyncResponse = {
     val block = Service.blockValue(defaultBlock)
     val rq = Request(method = "eth_getTransactionCount", params = address :: block :: Nil)
     executeAsync(rq)
   }
-  def asyncEthGetBlockTransactionCountByHash(blockHash: String): Future[JValue] = {
+  def asyncEthGetBlockTransactionCountByHash(blockHash: String): AsyncResponse = {
     val rq = Request(method = "eth_getBlockTransactionCountByHash", params = blockHash :: Nil)
     executeAsync(rq)
   }
-  def asyncEthGetBlockTransactionCountByNumber(defaultBlock: Block): Future[JValue] = {
+  def asyncEthGetBlockTransactionCountByNumber(defaultBlock: Block): AsyncResponse = {
     val block = Service.blockValue(defaultBlock)
     val rq = Request(method = "eth_getBlockTransactionCountByNumber", params = block :: Nil)
     executeAsync(rq)
   }
-  def asyncEthGetUncleCountByBlockHash(blockHash: String): Future[JValue] = {
+  def asyncEthGetUncleCountByBlockHash(blockHash: String): AsyncResponse = {
     val rq = Request(method = "eth_getUncleCountByBlockHash", params = blockHash :: Nil)
     executeAsync(rq)
   }
-  def asyncEthGetUncleCountByBlockNumber(defaultBlock: Block): Future[JValue] = {
+  def asyncEthGetUncleCountByBlockNumber(defaultBlock: Block): AsyncResponse = {
     val block = Service.blockValue(defaultBlock)
     val rq = Request(method = "eth_getUncleCountByBlockNumber", params = block :: Nil)
     executeAsync(rq)
   }
-  def asyncEthGetCode(address: String, defaultBlock: Block): Future[JValue] = {
+  def asyncEthGetCode(address: String, defaultBlock: Block): AsyncResponse = {
     val block = Service.blockValue(defaultBlock)
     val rq = Request(method = "eth_getCode", params = address :: block :: Nil)
     executeAsync(rq)
   }
-  def asyncEthSign(address: String, message: String): Future[JValue] = {
+  def asyncEthSign(address: String, message: String): AsyncResponse = {
     val rq = Request(method = "eth_sign", params = address :: message :: Nil)
     executeAsync(rq)
   }
@@ -212,9 +209,9 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
   implicit val formats: DefaultFormats.type = DefaultFormats
   import org.web3scala.json.JacksonReaders._
 
-  private def executeAsync(request: Request): Future[json4s.JValue] = {
+  private def executeAsync(request: Request): AsyncResponse = {
     val requestAsBytes = jsonMapper.writeAsBytes(request)
-    httpClient.async(requestAsBytes)
+    AsyncResponse(httpClient.async(requestAsBytes))
   }
   private def executeSync(request: Request): Response = {
     val requestAsBytes = jsonMapper.writeAsBytes(request)

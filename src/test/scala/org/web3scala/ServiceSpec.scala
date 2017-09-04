@@ -58,5 +58,22 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with MockitoSugar {
     response.asInstanceOf[Error].error.code shouldBe -32602
     response.asInstanceOf[Error].error.message shouldBe "invalid argument 0: json: cannot unmarshal hex string without 0x prefix into Go value of type hexutil.Bytes"
   }
+  it should "return current network id, when invoking netVersion method" in {
+    val sampleResponse = GenericResponse("2.0", 33, None, "3")
+    when(serviceMock.netVersion).thenReturn(sampleResponse)
+    val rawResponse = serviceMock.netVersion
+    val response = Service.handleResponse(rawResponse.asInstanceOf[GenericResponse])
+
+    response.asInstanceOf[SuccessString].result shouldBe "3"
+  }
+  it should "return Error object, when invoking netVersion method" in {
+    val sampleResponse = GenericResponse("2.0", 33, Some(ErrorContent(0, "")), AnyRef)
+    when(serviceMock.web3ClientVersion).thenReturn(sampleResponse)
+    val rawResponse = serviceMock.web3ClientVersion
+    val response = Service.handleResponse(rawResponse.asInstanceOf[GenericResponse])
+
+    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
+  }
+
 
 }
