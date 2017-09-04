@@ -1,7 +1,6 @@
 package org.web3scala.model
 
 import org.json4s.JsonAST.JValue
-
 import scala.collection.immutable.HashMap
 import scala.concurrent.Future
 
