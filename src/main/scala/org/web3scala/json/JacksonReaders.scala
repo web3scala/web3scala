@@ -1,7 +1,7 @@
 package org.web3scala.json
 
 import org.json4s.{DefaultFormats, JValue, Reader}
-import org.web3scala.model.{ErrorContent, GenericResponse, SuccessString}
+import org.web3scala.model.{ErrorContent, GenericResponse}
 
 object JacksonReaders {
   implicit val formats: DefaultFormats.type = DefaultFormats

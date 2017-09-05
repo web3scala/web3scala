@@ -26,15 +26,16 @@ work of Ethereum nodes.
   
   // synchronous call
   service.web3ClientVersion match {
-    case s: SuccessString => println("Client Version: " + s.result)
+    case s: Web3ClientVersion => println("Client Version: " + s.result)
     case e: Error => println("Client Version: " + e.error)
   }
 
   // asynchronous call
-  val rs = service.asyncWeb3ClientVersion.future()
-  service.handleResponse(rs.as[GenericResponse]) match {
-    case s: SuccessString => println("Client Version: " + s.result)
-    case e: Error => println("Client Version: " + e.error)
+  val future = service.asyncWeb3ClientVersion.future
+  val response = future().as[GenericResponse]
+  response.error match {
+    case Some(e) => println(e)
+    case None => println(response.result)
   }
 ```
 

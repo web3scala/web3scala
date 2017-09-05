@@ -27,6 +27,12 @@ object Utils {
       java.lang.Long.parseLong(value.substring(2), 16)
     else
       throw new QuantityDecodingException("Invalid hex value")
+  @throws(classOf[QuantityDecodingException])
+  def hex2int(value: String): Int =
+    if (isValidHex(value))
+      java.lang.Integer.parseInt(value.substring(2), 16)
+    else
+      throw new QuantityDecodingException("Invalid hex value")
   def isValidHex(value: String): Boolean = {
     if (value == null) return false
     if (value.length < 3) return false
