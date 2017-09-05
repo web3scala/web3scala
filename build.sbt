@@ -30,3 +30,5 @@ libraryDependencies ++= Seq(
 dependencyOverrides ++= Set(
   "io.netty" % "netty-handler" % "4.0.48.Final"
 )
+
+coverageEnabled in Test := true
