@@ -84,39 +84,65 @@ trait Ethereum {
   /** Returns asynchronously the current price per gas in wei */
   def asyncEthGasPrice: AsyncResponse
 
-
-
-
-
   /** Returns a list of addresses owned by client */
   def ethAccounts: Response
+
+  /** Returns asynchronously a list of addresses owned by client */
+  def asyncEthAccounts: AsyncResponse
 
   /** Returns the number of most recent block */
   def ethBlockNumber: Response
 
+  /** Returns asynchronously the number of most recent block */
+  def asyncEthBlockNumber: AsyncResponse
+
   /** Returns the balance of the account of given address */
   def ethGetBalance(address: String, defaultBlock: Block): Response
+
+  /** Returns asynchronously the balance of the account of given address */
+  def asyncEthGetBalance(address: String, defaultBlock: Block): AsyncResponse
 
   /** Returns the value from a storage position at a given address */
   def ethGetStorageAt(address: String, position: String, defaultBlock: Block): Response
 
+  /** Returns asynchronously the value from a storage position at a given address */
+  def asyncEthGetStorageAt(address: String, position: String, defaultBlock: Block): AsyncResponse
+
   /** Returns the number of transactions sent from an address */
   def ethGetTransactionCount(address: String, defaultBlock: Block): Response
+
+  /** Returns asynchronously the number of transactions sent from an address */
+  def asyncEthGetTransactionCount(address: String, defaultBlock: Block): AsyncResponse
 
   /** Returns the number of transactions in a block from a block matching the given block hash */
   def ethGetBlockTransactionCountByHash(blockHash: String): Response
 
+  /** Returns asynchronously the number of transactions in a block from a block matching the given block hash */
+  def asyncEthGetBlockTransactionCountByHash(blockHash: String): AsyncResponse
+
   /** Returns the number of transactions in a block from a block matching the given block number */
   def ethGetBlockTransactionCountByNumber(defaultBlock: Block): Response
+
+  /** Returns asynchronously the number of transactions in a block from a block matching the given block number */
+  def asyncEthGetBlockTransactionCountByNumber(defaultBlock: Block): AsyncResponse
 
   /** Returns the number of uncles in a block from a block matching the given block hash */
   def ethGetUncleCountByBlockHash(blockHash: String): Response
 
+  /** Returns asynchronously the number of uncles in a block from a block matching the given block hash */
+  def asyncEthGetUncleCountByBlockHash(blockHash: String): AsyncResponse
+
   /** Returns the number of uncles in a block from a block matching the given block number */
   def ethGetUncleCountByBlockNumber(defaultBlock: Block): Response
 
+  /** Returns asynchronously the number of uncles in a block from a block matching the given block number */
+  def asyncEthGetUncleCountByBlockNumber(defaultBlock: Block): AsyncResponse
+
   /** Returns code at a given address */
   def ethGetCode(address: String, defaultBlock: Block): Response
+
+  /** Returns asynchronously code at a given address */
+  def asyncEthGetCode(address: String, defaultBlock: Block): AsyncResponse
 
   /**
     * Returns calculated Ethereum specific signature with:
@@ -129,5 +155,18 @@ trait Ethereum {
     * Note: the address to sign with must be unlocked.
     */
   def ethSign(address: String, message: String): Response
+
+  /**
+    * Returns asynchronously calculated Ethereum specific signature with:
+    * sign(keccak256("\x19Ethereum Signed Message:\n" + len(message) + message)))
+    *
+    * Adding a prefix to the message makes the calculated signature recognisable as an Ethereum
+    * specific signature. This prevents misuse where a malicious DApp can sign arbitrary data
+    * (e.g. transaction) and use the signature to impersonate the victim.
+    *
+    * Note: the address to sign with must be unlocked.
+    */
+  def asyncEthSign(address: String, message: String): AsyncResponse
+
 
 }

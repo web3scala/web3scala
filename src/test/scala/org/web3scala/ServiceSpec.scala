@@ -44,19 +44,19 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   }
   it should "return Keccak-256 of the given data, when invoking web3Sha3 method with valid input" in {
 
-    val data = Utils.int2hex(123)
-    val rq = Request(method = "web3_sha3", params = data :: Nil)
+    val rqData = Utils.int2hex(123)
+    val rq = Request(method = "web3_sha3", params = rqData :: Nil)
     val rs = GenericResponse("2.0", 33, None, "0xa91eddf639b0b768929589c1a9fd21dcb0107199bdd82e55c5348018a1572f52")
 
-    val response = service(rq, rs).web3Sha3(data)
+    val response = service(rq, rs).web3Sha3(rqData)
 
     response.asInstanceOf[Web3Sha3].result shouldBe
       "0xa91eddf639b0b768929589c1a9fd21dcb0107199bdd82e55c5348018a1572f52"
   }
   it should "return Error object, when invoking web3Sha3 method with invalid input" in {
 
-    val data = "test"
-    val rq = Request(method = "web3_sha3", params = data :: Nil)
+    val rqData = "test"
+    val rq = Request(method = "web3_sha3", params = rqData :: Nil)
     val rs = GenericResponse("2.0", 33,
       Some(
         ErrorContent(-32602,
@@ -65,7 +65,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
       ), AnyRef
     )
 
-    val response = service(rq, rs).web3Sha3(data)
+    val response = service(rq, rs).web3Sha3(rqData)
 
     response.asInstanceOf[Error].error shouldBe a [ErrorContent]
     response.asInstanceOf[Error].error.code shouldBe -32602
@@ -131,7 +131,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethSyncing
 
-    val result = response.asInstanceOf[EthSyncingTrue].result.mkString(", ") shouldBe
+    response.asInstanceOf[EthSyncingTrue].result.mkString(", ") shouldBe
       "pulledStates -> 4871, knownStates -> 9511, currentBlock -> 120384, highestBlock -> 834763, startingBlock -> 120384"
   }
   it should "return the client coinbase address, when invoking ethCoinbase method" in {
@@ -170,5 +170,230 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     response.asInstanceOf[EthGasPrice].result shouldBe 30000000000L
   }
+  it should "return list of addresses owned by client, when invoking ethAccounts method" in {
+
+    val rsData = List(
+      "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617",
+      "0xd179a76b1d0a91dc8287afc9032cae34f283873d",
+      "0xf9c510e90bcb47cc49549e57b80814ae3a8bb683"
+    )
+    val rq = Request(method = "eth_accounts")
+    val rs = GenericResponse("2.0", 33, None, rsData)
+
+    val response = service(rq, rs).ethAccounts
+
+    response.asInstanceOf[EthAccounts].result.mkString(", ") shouldBe
+      "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617, 0xd179a76b1d0a91dc8287afc9032cae34f283873d, 0xf9c510e90bcb47cc49549e57b80814ae3a8bb683"
+  }
+  it should "return the number of most recent block, when invoking ethBlockNumber method" in {
+
+    val rq = Request(method = "eth_blockNumber")
+    val rs = GenericResponse("2.0", 33, None, "0x18AA03")
+
+    val response = service(rq, rs).ethBlockNumber
+
+    response.asInstanceOf[EthBlockNumber].result shouldBe 1616387L
+  }
+  it should "return the balance of the account of given address, when invoking ethGetBalance method with block number" in {
+
+    val address = "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617"
+    val blockNumber = BlockNumber(1559297)
+    val block = Service.blockValue(blockNumber)
+
+    val rq = Request(method = "eth_getBalance", params = address :: block :: Nil)
+    val rs = GenericResponse("2.0", 33, None, "0x491C86A7F255B000")
+
+    val response = service(rq, rs).ethGetBalance(address, blockNumber)
+
+    response.asInstanceOf[EthBalance].result shouldBe 5268233720000000000L
+  }
+  it should "return Error object, when invoking ethGetBalance method with invalid input" in {
+
+    val address = "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617"
+    val blockNumber = BlockNumber(156898)
+    val block = Service.blockValue(blockNumber)
+
+    val rq = Request(method = "eth_getBalance", params = address :: block :: Nil)
+    val rs = GenericResponse("2.0", 33,
+      Some(
+        ErrorContent(-32000,
+          "missing trie node 81f524d8384c88d5104a749895c8ed6d3f1a01c8c5f78bd547f74c10862964bc (path )"
+        )
+      ), AnyRef
+    )
+
+    val response = service(rq, rs).ethGetBalance(address, blockNumber)
+
+    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
+    response.asInstanceOf[Error].error.code shouldBe -32000
+    response.asInstanceOf[Error].error.message shouldBe
+      "missing trie node 81f524d8384c88d5104a749895c8ed6d3f1a01c8c5f78bd547f74c10862964bc (path )"
+  }
+  it should "return the balance of the account of given address, when invoking ethGetBalance method with block name" in {
+
+    val address = "0xf9C510e90bCb47cc49549e57b80814aE3A8bb683"
+    val blockName = BlockName("latest")
+    val block = Service.blockValue(blockName)
+
+    val rq = Request(method = "eth_getBalance", params = address :: block :: Nil)
+    val rs = GenericResponse("2.0", 33, None, "0x6F05B59D3B20000")
+
+    val response = service(rq, rs).ethGetBalance(address, blockName)
+
+    response.asInstanceOf[EthBalance].result shouldBe 500000000000000000L
+  }
+  it should "return the value from a storage position at a given address, when invoking ethGetStorageAt method" in {
+
+    val address = "0x902c4fD71e196E86e7C82126Ff88ADa63a590d22"
+    val position = Utils.int2hex(1)
+    val blockName = BlockName("latest")
+    val block = Service.blockValue(blockName)
+
+    val rq = Request(method = "eth_getStorageAt", params = address :: position :: block :: Nil)
+    val rs = GenericResponse("2.0", 33, None, "0x0000000000000000000000000000000000000000000000000000000000000000")
+
+    val response = service(rq, rs).ethGetStorageAt(address, position, blockName)
+
+    response.asInstanceOf[EthStorage].result shouldBe "0x0000000000000000000000000000000000000000000000000000000000000000"
+  }
+  it should "return the value, for an element of the map, from a storage position at a given address, when invoking ethGetStorageAt method" is pending
+  it should "return the number of transactions sent from an address, when invoking ethGetTransactionCount method" in {
+
+    val address = "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617"
+    val blockName = BlockName("latest")
+    val block = Service.blockValue(blockName)
+
+    val rq = Request(method = "eth_getTransactionCount", params = address :: block :: Nil)
+    val rs = GenericResponse("2.0", 33, None, "0xA")
+
+    val response = service(rq, rs).ethGetTransactionCount(address, blockName)
+
+    response.asInstanceOf[EthTransactionCount].result shouldBe 10
+  }
+  it should "return the number of transactions in a block from a block matching the given block hash, when invoking ethGetBlockTransactionCountByHash method" in {
+
+    val blockHash = "0xc40da02dbc5bb5cbde7c8c8cb7923797afc3078e3589b5537ec72b4726da8843"
+
+    val rq = Request(method = "eth_getBlockTransactionCountByHash", params = blockHash :: Nil)
+    val rs = GenericResponse("2.0", 33, None, "0x8")
+
+    val response = service(rq, rs).ethGetBlockTransactionCountByHash(blockHash)
+
+    response.asInstanceOf[EthBlockTransactionCount].result shouldBe 8
+  }
+  it should "return Error object, when invoking ethGetBlockTransactionCountByHash method with invalid input" in {
+
+    val blockHash = "0x9b2055d370f73ec7d8a03e965129118dc8f5bf83"
+
+    val rq = Request(method = "eth_getBlockTransactionCountByHash", params = blockHash :: Nil)
+    val rs = GenericResponse("2.0", 33,
+      Some(
+        ErrorContent(-32602,
+          "invalid argument 0: hex string has length 40, want 64 for common.Hash"
+        )
+      ), AnyRef
+    )
+
+    val response = service(rq, rs).ethGetBlockTransactionCountByHash(blockHash)
+
+    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
+    response.asInstanceOf[Error].error.code shouldBe -32602
+    response.asInstanceOf[Error].error.message shouldBe
+      "invalid argument 0: hex string has length 40, want 64 for common.Hash"
+  }
+  it should "return the number of transactions in a block from a block matching the given block number, when invoking ethGetBlockTransactionCountByNumber method" in {
+
+    val blockNumber = BlockNumber(1128977)
+    val block = Service.blockValue(blockNumber)
+
+    val rq = Request(method = "eth_getBlockTransactionCountByNumber", params = block :: Nil)
+    val rs = GenericResponse("2.0", 33, None, "0x6")
+
+    val response = service(rq, rs).ethGetBlockTransactionCountByNumber(blockNumber)
+
+    response.asInstanceOf[EthBlockTransactionCount].result shouldBe 6
+  }
+  it should "return the number of uncles in a block from a block matching the given block hash, when invoking ethGetUncleCountByBlockHash method" in {
+
+    val blockHash = "0x7c70252114eafc143743e998eb5dbf11b2c61a716590982821fdd13f174ed891"
+
+    val rq = Request(method = "eth_getUncleCountByBlockHash", params = blockHash :: Nil)
+    val rs = GenericResponse("2.0", 33, None, "0x0")
+
+    val response = service(rq, rs).ethGetUncleCountByBlockHash(blockHash)
+
+    response.asInstanceOf[EthUncleCount].result shouldBe 0
+  }
+  it should "return the number of uncles in a block from a block matching the given block number, when invoking ethGetUncleCountByBlockNumber method" in {
+
+    val blockNumber = BlockNumber(1128977)
+    val block = Service.blockValue(blockNumber)
+
+    val rq = Request(method = "eth_getUncleCountByBlockNumber", params = block :: Nil)
+    val rs = GenericResponse("2.0", 33, None, "0x0")
+
+    val response = service(rq, rs).ethGetUncleCountByBlockNumber(blockNumber)
+
+    response.asInstanceOf[EthUncleCount].result shouldBe 0
+  }
+  it should "return code at a given address, when invoking ethGetCode method" in {
+
+    val address = "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617"
+    val blockNumber = BlockNumber(1128977)
+    val block = Service.blockValue(blockNumber)
+
+    val rq = Request(method = "eth_getCode", params = address :: block :: Nil)
+    val rs = GenericResponse("2.0", 33, None, "0x0")
+
+    val response = service(rq, rs).ethGetCode(address, blockNumber)
+
+    response.asInstanceOf[EthCode].result shouldBe "0x0"
+  }
+  it should "return calculated Ethereum specific signature, when invoking ethSign method" in {
+
+    val address = "0xf9C510e90bCb47cc49549e57b80814aE3A8bb683"
+    val message = "0xdeadbeef"
+
+    val rq = Request(method = "eth_sign", params = address :: message :: Nil)
+    val rs = GenericResponse("2.0", 33, None,
+      "0xa3f20717a250c2b0b729b7e5becbff67fdaef7e0699da4de7ca5895b02a170a12d887fd3b17bfdce3481f10bea41f45ba9f709d39ce8325427b57afcfc994cee1b"
+    )
+
+    val response = service(rq, rs).ethSign(address, message)
+
+    response.asInstanceOf[EthSign].result shouldBe
+      "0xa3f20717a250c2b0b729b7e5becbff67fdaef7e0699da4de7ca5895b02a170a12d887fd3b17bfdce3481f10bea41f45ba9f709d39ce8325427b57afcfc994cee1b"
+  }
+  it should "return Error object, when invoking ethSign method with unknown account" in {
+
+    val address = "0x9b2055d370f73ec7d8a03e965129118dc8f5bf83"
+    val message = "0xdeadbeef"
+
+    val rq = Request(method = "eth_sign", params = address :: message :: Nil)
+    val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "unknown account")), AnyRef
+    )
+
+    val response = service(rq, rs).ethSign(address, message)
+
+    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
+    response.asInstanceOf[Error].error.code shouldBe -32000
+    response.asInstanceOf[Error].error.message shouldBe "unknown account"
+  }
+  it should "return Error object, when invoking ethSign method with locked account" in {
+
+    val address = "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617"
+    val message = "0xdeadbeef"
+
+    val rq = Request(method = "eth_sign", params = address :: message :: Nil)
+    val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "authentication needed: password or unlock")), AnyRef
+    )
+
+    val response = service(rq, rs).ethSign(address, message)
+
+    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
+    response.asInstanceOf[Error].error.code shouldBe -32000
+    response.asInstanceOf[Error].error.message shouldBe "authentication needed: password or unlock"
+  }
+
 
 }
