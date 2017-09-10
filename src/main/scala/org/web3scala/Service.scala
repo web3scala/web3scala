@@ -203,6 +203,33 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
       case None => EthSign(response.jsonrpc, response.id, response.result.asInstanceOf[String])
     }
   }
+  override def ethSendTransaction(from: String, to: Option[String], gas: Option[String],
+                                  gasPrice: Option[String], value: Option[String], data: String,
+                                  nonce: Option[String]): Response = {
+    val params = HashMap(
+      "from" -> from,
+      "to" -> to,
+      "gas" -> gas,
+      "gasPrice" -> gasPrice,
+      "value" -> value,
+      "data" -> data,
+      "nonce" -> nonce
+    )
+    val request = Request(method = "eth_sendTransaction", params = params :: Nil)
+    val response = executeSync(request)
+    response.error match {
+      case Some(e) => Error(response.jsonrpc, response.id, e)
+      case None => EthTransaction(response.jsonrpc, response.id, response.result.asInstanceOf[String])
+    }
+  }
+  override def ethSendRawTransaction(data: String): Response = {
+    val request = Request(method = "eth_sendRawTransaction", params = data :: Nil)
+    val response = executeSync(request)
+    response.error match {
+      case Some(e) => Error(response.jsonrpc, response.id, e)
+      case None => EthTransaction(response.jsonrpc, response.id, response.result.asInstanceOf[String])
+    }
+  }
 
 
   override def asyncWeb3ClientVersion: AsyncResponse = {
@@ -233,72 +260,92 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val rq = Request(method = "eth_syncing")
     executeAsync(rq)
   }
-  def asyncEthCoinbase: AsyncResponse = {
+  override def asyncEthCoinbase: AsyncResponse = {
     val rq = Request(method = "eth_coinbase")
     executeAsync(rq)
   }
-  def asyncEthMining: AsyncResponse = {
+  override def asyncEthMining: AsyncResponse = {
     val rq = Request(method = "eth_mining")
     executeAsync(rq)
   }
-  def asyncEthHashrate: AsyncResponse = {
+  override def asyncEthHashrate: AsyncResponse = {
     val rq = Request(method = "eth_hashrate")
     executeAsync(rq)
   }
-  def asyncEthGasPrice: AsyncResponse = {
+  override def asyncEthGasPrice: AsyncResponse = {
     val rq = Request(method = "eth_gasPrice")
     executeAsync(rq)
   }
-  def asyncEthAccounts: AsyncResponse = {
+  override def asyncEthAccounts: AsyncResponse = {
     val rq = Request(method = "eth_accounts")
     executeAsync(rq)
   }
-  def asyncEthBlockNumber: AsyncResponse = {
+  override def asyncEthBlockNumber: AsyncResponse = {
     val rq = Request(method = "eth_blockNumber")
     executeAsync(rq)
   }
-  def asyncEthGetBalance(address: String, defaultBlock: Block): AsyncResponse = {
+  override def asyncEthGetBalance(address: String, defaultBlock: Block): AsyncResponse = {
     val block = Service.blockValue(defaultBlock)
     val rq = Request(method = "eth_getBalance", params = address :: block :: Nil)
     executeAsync(rq)
   }
-  def asyncEthGetStorageAt(address: String, position: String, defaultBlock: Block): AsyncResponse = {
+  override def asyncEthGetStorageAt(address: String, position: String, defaultBlock: Block): AsyncResponse = {
     val block = Service.blockValue(defaultBlock)
     val rq = Request(method = "eth_getStorageAt", params = address :: position:: block :: Nil)
     executeAsync(rq)
   }
-  def asyncEthGetTransactionCount(address: String, defaultBlock: Block): AsyncResponse = {
+  override def asyncEthGetTransactionCount(address: String, defaultBlock: Block): AsyncResponse = {
     val block = Service.blockValue(defaultBlock)
     val rq = Request(method = "eth_getTransactionCount", params = address :: block :: Nil)
     executeAsync(rq)
   }
-  def asyncEthGetBlockTransactionCountByHash(blockHash: String): AsyncResponse = {
+  override def asyncEthGetBlockTransactionCountByHash(blockHash: String): AsyncResponse = {
     val rq = Request(method = "eth_getBlockTransactionCountByHash", params = blockHash :: Nil)
     executeAsync(rq)
   }
-  def asyncEthGetBlockTransactionCountByNumber(defaultBlock: Block): AsyncResponse = {
+  override def asyncEthGetBlockTransactionCountByNumber(defaultBlock: Block): AsyncResponse = {
     val block = Service.blockValue(defaultBlock)
     val rq = Request(method = "eth_getBlockTransactionCountByNumber", params = block :: Nil)
     executeAsync(rq)
   }
-  def asyncEthGetUncleCountByBlockHash(blockHash: String): AsyncResponse = {
+  override def asyncEthGetUncleCountByBlockHash(blockHash: String): AsyncResponse = {
     val rq = Request(method = "eth_getUncleCountByBlockHash", params = blockHash :: Nil)
     executeAsync(rq)
   }
-  def asyncEthGetUncleCountByBlockNumber(defaultBlock: Block): AsyncResponse = {
+  override def asyncEthGetUncleCountByBlockNumber(defaultBlock: Block): AsyncResponse = {
     val block = Service.blockValue(defaultBlock)
     val rq = Request(method = "eth_getUncleCountByBlockNumber", params = block :: Nil)
     executeAsync(rq)
   }
-  def asyncEthGetCode(address: String, defaultBlock: Block): AsyncResponse = {
+  override def asyncEthGetCode(address: String, defaultBlock: Block): AsyncResponse = {
     val block = Service.blockValue(defaultBlock)
     val rq = Request(method = "eth_getCode", params = address :: block :: Nil)
     executeAsync(rq)
   }
-  def asyncEthSign(address: String, message: String): AsyncResponse = {
+  override def asyncEthSign(address: String, message: String): AsyncResponse = {
     val rq = Request(method = "eth_sign", params = address :: message :: Nil)
     executeAsync(rq)
   }
+  override def asyncEthSendTransaction(from: String, to: Option[String], gas: Option[String],
+                                       gasPrice: Option[String], value: Option[String], data: String,
+                                       nonce: Option[String]): AsyncResponse = {
+    val params = HashMap(
+      "from" -> from,
+      "to" -> to,
+      "gas" -> gas,
+      "gasPrice" -> gasPrice,
+      "value" -> value,
+      "data" -> data,
+      "nonce" -> nonce
+    )
+    val rq = Request(method = "eth_sendTransaction", params = params :: Nil)
+    executeAsync(rq)
+  }
+  override def asyncEthSendRawTransaction(data: String): AsyncResponse = {
+    val rq = Request(method = "eth_sendRawTransaction", params = data :: Nil)
+    executeAsync(rq)
+  }
+
 
   import org.web3scala.json.JacksonReaders._
 
@@ -311,6 +358,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = httpClient.sync(requestAsBytes)
     response.as[GenericResponse]
   }
+
 }
 object Service {
   @throws(classOf[InvalidBlockName])

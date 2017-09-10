@@ -4,7 +4,7 @@ import org.json4s.JsonAST.JValue
 import scala.collection.immutable.HashMap
 import scala.concurrent.Future
 
-case class Request(jsonrpc: String = "2.0", method: String, var params: List[String] = List.empty[String], id: Int = 1)
+case class Request(jsonrpc: String = "2.0", method: String, var params: AnyRef = List.empty[String], id: Int = 1)
 
 trait Response
 case class GenericResponse(jsonrpc: String, id: Int, error: Option[ErrorContent], result: Any) extends Response
@@ -29,6 +29,8 @@ case class EthBlockTransactionCount(jsonrpc: String, id: Int, result: Long) exte
 case class EthUncleCount(jsonrpc: String, id: Int, result: Long) extends Response
 case class EthCode(jsonrpc: String, id: Int, result: String) extends Response
 case class EthSign(jsonrpc: String, id: Int, result: String) extends Response
+case class EthTransaction(jsonrpc: String, id: Int, result: String) extends Response
+
 
 
 case class AsyncResponse(future: Future[JValue]) extends Response

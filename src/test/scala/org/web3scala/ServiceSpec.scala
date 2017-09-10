@@ -370,8 +370,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val message = "0xdeadbeef"
 
     val rq = Request(method = "eth_sign", params = address :: message :: Nil)
-    val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "unknown account")), AnyRef
-    )
+    val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "unknown account")), AnyRef)
 
     val response = service(rq, rs).ethSign(address, message)
 
@@ -385,14 +384,91 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val message = "0xdeadbeef"
 
     val rq = Request(method = "eth_sign", params = address :: message :: Nil)
-    val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "authentication needed: password or unlock")), AnyRef
-    )
+    val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "authentication needed: password or unlock")), AnyRef)
 
     val response = service(rq, rs).ethSign(address, message)
 
     response.asInstanceOf[Error].error shouldBe a [ErrorContent]
     response.asInstanceOf[Error].error.code shouldBe -32000
     response.asInstanceOf[Error].error.message shouldBe "authentication needed: password or unlock"
+  }
+  it should "create new message call transaction or a create a contract, if the data field contains code, when invoking ethSendTransaction method" in {
+
+    val params = HashMap(
+      "from" -> "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617",
+      "to" -> "0xd179a76b1d0a91dc8287afc9032cae34f283873d",
+      "gas" -> "0x76c0",
+      "gasPrice" -> "0x9184e72a000",
+      "value" -> "0x9184e72a",
+      "data" -> "0x68656c6c6f",
+      "nonce" -> ""
+    )
+    val rq = Request(method = "eth_sendTransaction", params = params)
+    val rs = GenericResponse("2.0", 33, None, "0x88146924ed5462e0c213b2c1f7d2c4a9f8a3218218a27642b5ea632e465b5a42")
+
+    val response = service(rq, rs).ethSendTransaction(
+      params("from"),
+      Some(params("to")),
+      Some(params("gas")),
+      Some(params("gasPrice")),
+      Some(params("value")),
+      params("data"),
+      Some(params("nonce"))
+    )
+
+    response.asInstanceOf[EthTransaction].result shouldBe "0x88146924ed5462e0c213b2c1f7d2c4a9f8a3218218a27642b5ea632e465b5a42"
+  }
+  it should "return Error object, when invoking ethSendTransaction method with locked account" in {
+
+    val params = HashMap(
+      "from" -> "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617",
+      "to" -> "0xd179a76b1d0a91dc8287afc9032cae34f283873d",
+      "gas" -> "0x76c0",
+      "gasPrice" -> "0x9184e72a000",
+      "value" -> "0x9184e72a",
+      "data" -> "0x68656c6c6f",
+      "nonce" -> ""
+    )
+    val rq = Request(method = "eth_sendTransaction", params = params)
+    val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "authentication needed: password or unlock")), AnyRef)
+
+    val response = service(rq, rs).ethSendTransaction(
+      params("from"),
+      Some(params("to")),
+      Some(params("gas")),
+      Some(params("gasPrice")),
+      Some(params("value")),
+      params("data"),
+      Some(params("nonce"))
+    )
+
+    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
+    response.asInstanceOf[Error].error.code shouldBe -32000
+    response.asInstanceOf[Error].error.message shouldBe "authentication needed: password or unlock"
+  }
+  it should "create new message call transaction or a contract creation for signed transactions, when invoking ethSendRawTransaction method" in {
+
+    val data = "0xf9C510e90bCb47cc49549e57b80814aE3A8bb683"
+
+    val rq = Request(method = "eth_sendRawTransaction", params = data :: Nil)
+    val rs = GenericResponse("2.0", 33, None, "0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331")
+
+    val response = service(rq, rs).ethSendRawTransaction(data)
+
+    response.asInstanceOf[EthTransaction].result shouldBe "0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331"
+  }
+  it should "return Error object, when invoking ethSendRawTransaction method with element larger than containing list" in {
+
+    val data = "0xf9C510e90bCb47cc49549e57b80814aE3A8bb683"
+
+    val rq = Request(method = "eth_sendRawTransaction", params = data :: Nil)
+    val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "rlp: element is larger than containing list")), AnyRef)
+
+    val response = service(rq, rs).ethSendRawTransaction(data)
+
+    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
+    response.asInstanceOf[Error].error.code shouldBe -32000
+    response.asInstanceOf[Error].error.message shouldBe "rlp: element is larger than containing list"
   }
 
 
