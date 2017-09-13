@@ -1,6 +1,6 @@
 package org.web3scala.protocol
 
-import org.web3scala.model.{AsyncResponse, Block, Response}
+import org.web3scala.model.{AsyncResponse, BlockType, Response}
 
 trait Ethereum {
 
@@ -97,22 +97,22 @@ trait Ethereum {
   def asyncEthBlockNumber: AsyncResponse
 
   /** Returns the balance of the account of given address */
-  def ethGetBalance(address: String, defaultBlock: Block): Response
+  def ethGetBalance(address: String, defaultBlock: BlockType): Response
 
   /** Returns asynchronously the balance of the account of given address */
-  def asyncEthGetBalance(address: String, defaultBlock: Block): AsyncResponse
+  def asyncEthGetBalance(address: String, defaultBlock: BlockType): AsyncResponse
 
   /** Returns the value from a storage position at a given address */
-  def ethGetStorageAt(address: String, position: String, defaultBlock: Block): Response
+  def ethGetStorageAt(address: String, position: String, defaultBlock: BlockType): Response
 
   /** Returns asynchronously the value from a storage position at a given address */
-  def asyncEthGetStorageAt(address: String, position: String, defaultBlock: Block): AsyncResponse
+  def asyncEthGetStorageAt(address: String, position: String, defaultBlock: BlockType): AsyncResponse
 
   /** Returns the number of transactions sent from an address */
-  def ethGetTransactionCount(address: String, defaultBlock: Block): Response
+  def ethGetTransactionCount(address: String, defaultBlock: BlockType): Response
 
   /** Returns asynchronously the number of transactions sent from an address */
-  def asyncEthGetTransactionCount(address: String, defaultBlock: Block): AsyncResponse
+  def asyncEthGetTransactionCount(address: String, defaultBlock: BlockType): AsyncResponse
 
   /** Returns the number of transactions in a block from a block matching the given block hash */
   def ethGetBlockTransactionCountByHash(blockHash: String): Response
@@ -121,10 +121,10 @@ trait Ethereum {
   def asyncEthGetBlockTransactionCountByHash(blockHash: String): AsyncResponse
 
   /** Returns the number of transactions in a block from a block matching the given block number */
-  def ethGetBlockTransactionCountByNumber(defaultBlock: Block): Response
+  def ethGetBlockTransactionCountByNumber(defaultBlock: BlockType): Response
 
   /** Returns asynchronously the number of transactions in a block from a block matching the given block number */
-  def asyncEthGetBlockTransactionCountByNumber(defaultBlock: Block): AsyncResponse
+  def asyncEthGetBlockTransactionCountByNumber(defaultBlock: BlockType): AsyncResponse
 
   /** Returns the number of uncles in a block from a block matching the given block hash */
   def ethGetUncleCountByBlockHash(blockHash: String): Response
@@ -133,16 +133,16 @@ trait Ethereum {
   def asyncEthGetUncleCountByBlockHash(blockHash: String): AsyncResponse
 
   /** Returns the number of uncles in a block from a block matching the given block number */
-  def ethGetUncleCountByBlockNumber(defaultBlock: Block): Response
+  def ethGetUncleCountByBlockNumber(defaultBlock: BlockType): Response
 
   /** Returns asynchronously the number of uncles in a block from a block matching the given block number */
-  def asyncEthGetUncleCountByBlockNumber(defaultBlock: Block): AsyncResponse
+  def asyncEthGetUncleCountByBlockNumber(defaultBlock: BlockType): AsyncResponse
 
   /** Returns code at a given address */
-  def ethGetCode(address: String, defaultBlock: Block): Response
+  def ethGetCode(address: String, defaultBlock: BlockType): Response
 
   /** Returns asynchronously code at a given address */
-  def asyncEthGetCode(address: String, defaultBlock: Block): AsyncResponse
+  def asyncEthGetCode(address: String, defaultBlock: BlockType): AsyncResponse
 
   /**
     * Returns calculated Ethereum specific signature with:
@@ -170,20 +170,46 @@ trait Ethereum {
 
 
   /** Creates new message call transaction or a contract creation, if the data field contains code */
-  def ethSendTransaction(from: String, to: Option[String], gas: Option[String],
-                         gasPrice: Option[String], value: Option[String], data: String,
-                         nonce: Option[String]): Response
+  def ethSendTransaction(from: String, to: Option[String], gas: Option[String], gasPrice: Option[String],
+                         value: Option[String], data: String, nonce: Option[String]): Response
 
   /** Creates asynchronously new message call transaction or a contract creation, if the data field contains code */
-  def asyncEthSendTransaction(from: String, to: Option[String], gas: Option[String],
-                              gasPrice: Option[String], value: Option[String], data: String,
-                              nonce: Option[String]): AsyncResponse
+  def asyncEthSendTransaction(from: String, to: Option[String], gas: Option[String], gasPrice: Option[String],
+                              value: Option[String], data: String, nonce: Option[String]): AsyncResponse
 
   /** Creates new message call transaction or a contract creation for signed transactions */
   def ethSendRawTransaction(data: String): Response
 
   /** Creates asynchronously new message call transaction or a contract creation for signed transactions */
   def asyncEthSendRawTransaction(data: String): AsyncResponse
+
+  /** Executes a new message call immediately without creating a transaction on the block chain */
+  def ethCall(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
+              value: Option[String], data: Option[String], defaultBlock: BlockType): Response
+
+  /** Executes asynchronously a new message call immediately without creating a transaction on the block chain */
+  def asyncEthCall(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
+                   value: Option[String], data: Option[String], defaultBlock: BlockType): AsyncResponse
+
+  /**
+    * Makes a call or transaction, which won't be added to the blockchain and returns the used gas, which
+    * can be used for estimating the used gas
+    */
+  def ethEstimateGas(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
+                     value: Option[String], data: Option[String]): Response
+
+  /**
+    * Makes an asynchronous call or transaction, which won't be added to the blockchain and returns the used
+    * gas, which can be used for estimating the used gas
+    */
+  def asyncEthEstimateGas(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
+                          value: Option[String], data: Option[String]): AsyncResponse
+
+  /** Returns information about a block by hash */
+  def ethGetBlockByHash(data: String, fullTransactionObjects: Boolean): Response
+
+  /** Returns asynchronously information about a block by hash */
+  def asyncEthGetBlockByHash(data: String, fullTransactionObjects: Boolean): AsyncResponse
 
 
 }

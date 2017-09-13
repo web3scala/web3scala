@@ -470,6 +470,133 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     response.asInstanceOf[Error].error.code shouldBe -32000
     response.asInstanceOf[Error].error.message shouldBe "rlp: element is larger than containing list"
   }
+  it should "execute a new message call immediately without creating a transaction on the block chain, when invoking ethCall method" in {
+
+    val params = HashMap(
+      "from" -> "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617",
+      "to" -> "0xd179a76b1d0a91dc8287afc9032cae34f283873d",
+      "gas" -> "0x76c0",
+      "gasPrice" -> "0x9184e72a000",
+      "value" -> "0x9184e72a",
+      "data" -> "0x68656c6c6f"
+    )
+    val blockNumber  = BlockNumber(1128977)
+    val block = Service.blockValue(blockNumber)
+    val rq = Request(method = "eth_call", params = params :: block :: Nil)
+    val rs = GenericResponse("2.0", 33, None, "0x")
+
+    val response = service(rq, rs).ethCall(
+      Some(params("from")),
+      params("to"),
+      Some(params("gas")),
+      Some(params("gasPrice")),
+      Some(params("value")),
+      Some(params("data")),
+      blockNumber
+    )
+
+    response.asInstanceOf[EthCall].result shouldBe "0x"
+  }
+  it should "make a call or transaction, which won't be added to the blockchain and return the used gas, which " +
+    "can be used for estimating the used gas, when invoking ethEstimateGas method" in {
+
+    val params = HashMap(
+      "from" -> "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617",
+      "to" -> "0xd179a76b1d0a91dc8287afc9032cae34f283873d",
+      "gas" -> "0x76c0",
+      "gasPrice" -> "0x9184e72a000",
+      "value" -> "0x9184e72a",
+      "data" -> "0x68656c6c6f"
+    )
+    val rq = Request(method = "eth_call", params = params :: Nil)
+    val rs = GenericResponse("2.0", 33, None, "0x535D")
+
+    val response = service(rq, rs).ethEstimateGas(
+      Some(params("from")),
+      params("to"),
+      Some(params("gas")),
+      Some(params("gasPrice")),
+      Some(params("value")),
+      Some(params("data"))
+    )
+
+    response.asInstanceOf[EthEstimatedGas].result shouldBe 21341
+  }
+  it should "return information about a block by hash, when invoking ethGetBlockByHash method" in {
+
+    val data = "0xacf2a4907cfbfc1b181928893c0375714fad20d4e2877b20822d55370d101c01"
+    val fullTransactionObjects = true
+
+    val rq = Request(method = "eth_getBlockByHash", params = data :: fullTransactionObjects :: Nil)
+
+    val rsData = HashMap(
+      "number" -> "0x1919F7",
+      "hash" -> "0xacf2a4907cfbfc1b181928893c0375714fad20d4e2877b20822d55370d101c01",
+      "parentHash" -> "0xdb7697788ed0a25a883f3384592df414ae55602f9fa9dad4ae6c27f10f86e5b3",
+      "mixHash" -> "0x3c5eef4d518b2ce65a37e2a7f6139335b4f4e0cefa01ef1bebf58106ee3ba338",
+      "nonce" -> "0x4547a918a1c230a1",
+      "transactionsRoot" -> "0x76aa6e6f9bc8963459ee3ff346553e2ac1ab1d91777d97d988b8cc174dc9b862",
+      "stateRoot" -> "0xfcacbf5a391a32687f89511abc35b70c9419ec1aed21009f90a18f6f9301a6b7",
+      "receiptsRoot" -> "0x823be7358d1284d6e12609cb364afb4bdab653f9ca510774a556aae232bf4d73",
+      "sha3Uncles" -> "0xbfc0f819d3ed8cbf350e18f92a8a444cba78e9dd1c1073a83399237cf464f772",
+      "logsBloom" -> "0x040022140042004000420000000000000005000000000000000000000000000008000100100040000060000000002000000040000000000000001000000000000000000000000000000c0000080100000020000000000000000040008050200000000008020440000000008000000c004400000000400400008000000000002000000088000000200020000000000000000000000800000000c0000000000088000000000008000000020100000000002000020000000080200000000404000012000000010000200000000000000080000000000000000000000000000020000000000002000010000200000000000008000000008000000000000000000000",
+      "miner" -> "0xc56",
+      "difficulty" -> "0x1035EDAA0",
+      "totalDifficulty" -> "0x6364D76BE9D7B",
+      "extraData" -> "0xd883010607846765746887676f312e382e338664617277696e",
+      "size" -> "0xC56",
+      "gasLimit" -> "0x47E7C4",
+      "gasUsed" -> "0xBE611",
+      "timestamp" -> "0x59B4A81A",
+      "transactions" -> List(
+        HashMap(
+          "s" -> "0x418b08924f17a5ea30b8433f1cbb08eafc445706936df89135945040258b2ce3",
+          "blockHash" -> "0xacf2a4907cfbfc1b181928893c0375714fad20d4e2877b20822d55370d101c01",
+          "nonce" -> "0xD334",
+          "gasPrice" -> "0x6C088E200",
+          "gas" -> "0x5209",
+          "to" -> "0x8c3704a8612e7303eacaa5fe135482cef0c52556",
+          "v" -> "0x1C",
+          "hash" -> "0xe16846a4c2a0de9b4fa99b756ac4528bc8706612929dc386a27b75d4e545711e",
+          "from" -> "0x81b7e08f65bdf5648606c89998a9cc8164397647",
+          "blockNumber" -> "0x1919F7",
+          "r" -> "0xab1d1bbd289ba86a8d2debc76389bb8bf8f592b797dbac7b568f72dcd73cdc8",
+          "value" -> "0xDE0B6B3A7640000",
+          "input" -> "0x",
+          "transactionIndex" -> "0x0"
+        ),
+        HashMap(
+          "s" -> "0x407387c9649c4452a75f49428d32dec9b59f773247cc12305de4d9ae88e9fa98",
+          "blockHash" -> "0xacf2a4907cfbfc1b181928893c0375714fad20d4e2877b20822d55370d101c01",
+          "nonce" -> "0xD335",
+          "gasPrice" -> "0x6C088E200",
+          "gas" -> "0x5209",
+          "to" -> "0x8c3704a8612e7303eacaa5fe135482cef0c52556",
+          "v" -> "0x1B",
+          "hash" -> "0x0c86abbe3f4d3d1ecc5d3ef7b1acce2c780dfc923d1d0c34f95de16679d1e679",
+          "from" -> "0x81b7e08f65bdf5648606c89998a9cc8164397647",
+          "blockNumber" -> "0x1919F7",
+          "r" -> "0xf8480c80d131a1619fe03c9c5abd219aca57cac76821c49c30bb16de2c66e403",
+          "value" -> "0xDE0B6B3A7640000",
+          "input" -> "0x",
+          "transactionIndex" -> "0x1"
+        )
+      ),
+      "uncles" -> List(
+        "0x7a77093b82b5dff8af33954b16b51a93543d88cba8c814ad29c29f38f09e49f7",
+        "0x7a28ae12786ff6cac0eb55feda9897c85a14d1fd9ad9a7c41fd1071bbc162de9"
+      )
+    )
+
+    val rs = GenericResponse("2.0", 33, None, rsData)
+
+    val response = service(rq, rs).ethGetBlockByHash(data, fullTransactionObjects)
+
+    val actualResult = response.asInstanceOf[EthBlock].result.get.asInstanceOf[BlockWithTransactions].number
+    val expectedResult = Utils.hex2long(rsData("number").toString)
+
+    actualResult shouldBe expectedResult
+  }
 
 
 }
