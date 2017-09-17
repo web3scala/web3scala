@@ -309,6 +309,37 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
         }
     }
   }
+  override def ethGetTransactionByBlockHashAndIndex(blockHash: String, transactionIndex: String): Response = {
+    val request = Request(method = "eth_getTransactionByBlockHashAndIndex", params = blockHash :: transactionIndex :: Nil)
+    val response = executeSync(request)
+    response.error match {
+      case Some(e) => Error(response.jsonrpc, response.id, e)
+      case None =>
+        response.result match {
+          case Some(result) =>
+            import org.web3scala.json.JacksonReaders._
+            val transaction = Extraction.decompose(result).as[Transaction]
+            EthTransactionObject(response.jsonrpc, response.id, Some(transaction))
+          case None => EthTransactionObject(response.jsonrpc, response.id, None)
+        }
+    }
+  }
+  override def ethGetTransactionByBlockNumberAndIndex(defaultBlock: BlockType, transactionIndex: String): Response = {
+    val block = Service.blockValue(defaultBlock)
+    val request = Request(method = "eth_getTransactionByBlockNumberAndIndex", params = block :: transactionIndex :: Nil)
+    val response = executeSync(request)
+    response.error match {
+      case Some(e) => Error(response.jsonrpc, response.id, e)
+      case None =>
+        response.result match {
+          case Some(result) =>
+            import org.web3scala.json.JacksonReaders._
+            val transaction = Extraction.decompose(result).as[Transaction]
+            EthTransactionObject(response.jsonrpc, response.id, Some(transaction))
+          case None => EthTransactionObject(response.jsonrpc, response.id, None)
+        }
+    }
+  }
 
 
   override def asyncWeb3ClientVersion: AsyncResponse = {
@@ -464,7 +495,15 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val rq = Request(method = "eth_getTransactionByHash", params = transactionHash :: Nil)
     executeAsync(rq)
   }
-
+  override def asyncEthGetTransactionByBlockHashAndIndex(blockHash: String, transactionIndex: String): AsyncResponse = {
+    val rq = Request(method = "eth_getTransactionByBlockHashAndIndex", params = blockHash :: transactionIndex :: Nil)
+    executeAsync(rq)
+  }
+  override def asyncEthGetTransactionByBlockNumberAndIndex(defaultBlock: BlockType, transactionIndex: String): AsyncResponse = {
+    val block = Service.blockValue(defaultBlock)
+    val rq = Request(method = "eth_getTransactionByBlockNumberAndIndex", params = block :: transactionIndex :: Nil)
+    executeAsync(rq)
+  }
 
 
   import org.web3scala.json.JacksonReaders._

@@ -699,7 +699,67 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val expectedResult = Utils.hex2long(rsData("nonce"))
 
     actualResult shouldBe expectedResult
+  }
+  it should "return information about a transaction by block hash and transaction index position, when " +
+    "invoking ethGetTransactionByBlockHashAndIndex method" in {
 
+    val blockHash = "0x190b2f6fccbedaff8d86fda056703bab1d45b9a7039565f461c1cb08135173b8"
+    val transactionIndex = "0x0"
+    val rq = Request(method = "eth_getTransactionByBlockHashAndIndex", params = blockHash :: transactionIndex :: Nil)
+
+    val rsData = HashMap(
+      "hash" -> "0xc5d56567de1ea70bd2ca0923cf668bab2256d22ccfd37a2015f0993860893ea3",
+      "nonce" -> "0x829A",
+      "blockHash" -> "0x190b2f6fccbedaff8d86fda056703bab1d45b9a7039565f461c1cb08135173b8",
+      "blockNumber" -> "0x19CEB1",
+      "transactionIndex" -> "0x0",
+      "from" -> "0x8da112ec6ded38970590ead4cc36146533157b77",
+      "to" -> "0xddf57e70077d613c4bbec49f7f80e703c55d81ec",
+      "value" -> "0x0",
+      "gasPrice" -> "0x4E3B29200",
+      "gas" -> "0x7A120",
+      "input" -> "0x51a34eb800000000000000000000000000000000000000000000000da47beca5eece0000"
+    )
+
+    val rs = GenericResponse("2.0", 33, None, Some(rsData))
+
+    val response = service(rq, rs).ethGetTransactionByBlockHashAndIndex(blockHash, transactionIndex)
+
+    val actualResult = response.asInstanceOf[EthTransactionObject].result.get.nonce
+    val expectedResult = Utils.hex2long(rsData("nonce"))
+
+    actualResult shouldBe expectedResult
+  }
+  it should "return information about a transaction by block number and transaction index position, when " +
+    "invoking ethGetTransactionByBlockNumberAndIndex method" in {
+
+    val blockNumber  = BlockNumber(1691313)
+    val block = Service.blockValue(blockNumber)
+    val transactionIndex = "0x0"
+    val rq = Request(method = "eth_getTransactionByBlockNumberAndIndex", params = block :: transactionIndex :: Nil)
+
+    val rsData = HashMap(
+      "hash" -> "0xc5d56567de1ea70bd2ca0923cf668bab2256d22ccfd37a2015f0993860893ea3",
+      "nonce" -> "0x829A",
+      "blockHash" -> "0x190b2f6fccbedaff8d86fda056703bab1d45b9a7039565f461c1cb08135173b8",
+      "blockNumber" -> "0x19CEB1",
+      "transactionIndex" -> "0x0",
+      "from" -> "0x8da112ec6ded38970590ead4cc36146533157b77",
+      "to" -> "0xddf57e70077d613c4bbec49f7f80e703c55d81ec",
+      "value" -> "0x0",
+      "gasPrice" -> "0x4E3B29200",
+      "gas" -> "0x7A120",
+      "input" -> "0x51a34eb800000000000000000000000000000000000000000000000da47beca5eece0000"
+    )
+
+    val rs = GenericResponse("2.0", 33, None, Some(rsData))
+
+    val response = service(rq, rs).ethGetTransactionByBlockNumberAndIndex(blockNumber, transactionIndex)
+
+    val actualResult = response.asInstanceOf[EthTransactionObject].result.get.nonce
+    val expectedResult = Utils.hex2long(rsData("nonce"))
+
+    actualResult shouldBe expectedResult
   }
 
 }
