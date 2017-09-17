@@ -222,8 +222,8 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
       case None => EthTransactionHash(response.jsonrpc, response.id, response.result.get.asInstanceOf[String])
     }
   }
-  override def ethSendRawTransaction(data: String): Response = {
-    val request = Request(method = "eth_sendRawTransaction", params = data :: Nil)
+  override def ethSendRawTransaction(signedTransactionData: String): Response = {
+    val request = Request(method = "eth_sendRawTransaction", params = signedTransactionData :: Nil)
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
@@ -265,8 +265,8 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
       case None => EthEstimatedGas(response.jsonrpc, response.id, Utils.hex2long(response.result.get.asInstanceOf[String]))
     }
   }
-  override def ethGetBlockByHash(data: String, fullTransactionObjects: Boolean): Response = {
-    val request = Request(method = "eth_getBlockByHash", params = data :: fullTransactionObjects :: Nil)
+  override def ethGetBlockByHash(blockHash: String, fullTransactionObjects: Boolean): Response = {
+    val request = Request(method = "eth_getBlockByHash", params = blockHash :: fullTransactionObjects :: Nil)
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
@@ -294,8 +294,8 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
         EthBlockObject(response.jsonrpc, response.id, Some(block))
     }
   }
-  override def ethGetTransactionByHash(data: String): Response = {
-    val request = Request(method = "eth_getTransactionByHash", params = data :: Nil)
+  override def ethGetTransactionByHash(transactionHash: String): Response = {
+    val request = Request(method = "eth_getTransactionByHash", params = transactionHash :: Nil)
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
@@ -451,8 +451,8 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val rq = Request(method = "eth_estimateGas", params = params :: Nil)
     executeAsync(rq)
   }
-  override def asyncEthGetBlockByHash(data: String, fullTransactionObjects: Boolean): AsyncResponse = {
-    val rq = Request(method = "eth_getBlockByHash", params = data :: fullTransactionObjects :: Nil)
+  override def asyncEthGetBlockByHash(blockHash: String, fullTransactionObjects: Boolean): AsyncResponse = {
+    val rq = Request(method = "eth_getBlockByHash", params = blockHash :: fullTransactionObjects :: Nil)
     executeAsync(rq)
   }
   override def asyncEthGetBlockByNumber(defaultBlock: BlockType, fullTransactionObjects: Boolean): AsyncResponse = {
@@ -460,8 +460,8 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val rq = Request(method = "eth_getBlockByNumber", params = block :: fullTransactionObjects :: Nil)
     executeAsync(rq)
   }
-  override def asyncEthGetTransactionByHash(data: String): AsyncResponse = {
-    val rq = Request(method = "eth_getTransactionByHash", params = data :: Nil)
+  override def asyncEthGetTransactionByHash(transactionHash: String): AsyncResponse = {
+    val rq = Request(method = "eth_getTransactionByHash", params = transactionHash :: Nil)
     executeAsync(rq)
   }
 

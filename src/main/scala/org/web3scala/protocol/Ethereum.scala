@@ -178,10 +178,10 @@ trait Ethereum {
                               value: Option[String], data: String, nonce: Option[String]): AsyncResponse
 
   /** Creates new message call transaction or a contract creation for signed transactions */
-  def ethSendRawTransaction(data: String): Response
+  def ethSendRawTransaction(signedTransactionData: String): Response
 
   /** Creates asynchronously new message call transaction or a contract creation for signed transactions */
-  def asyncEthSendRawTransaction(data: String): AsyncResponse
+  def asyncEthSendRawTransaction(signedTransactionData: String): AsyncResponse
 
   /** Executes a new message call immediately without creating a transaction on the block chain */
   def ethCall(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
@@ -206,10 +206,10 @@ trait Ethereum {
                           value: Option[String], data: Option[String]): AsyncResponse
 
   /** Returns information about a block by hash */
-  def ethGetBlockByHash(data: String, fullTransactionObjects: Boolean): Response
+  def ethGetBlockByHash(blockHash: String, fullTransactionObjects: Boolean): Response
 
   /** Returns asynchronously information about a block by hash */
-  def asyncEthGetBlockByHash(data: String, fullTransactionObjects: Boolean): AsyncResponse
+  def asyncEthGetBlockByHash(blockHash: String, fullTransactionObjects: Boolean): AsyncResponse
 
   /** Returns information about a block by block number */
   def ethGetBlockByNumber(defaultBlock: BlockType, fullTransactionObjects: Boolean): Response
@@ -218,10 +218,9 @@ trait Ethereum {
   def asyncEthGetBlockByNumber(defaultBlock: BlockType, fullTransactionObjects: Boolean): AsyncResponse
 
   /** Returns information about a transaction requested by transaction hash */
-  def ethGetTransactionByHash(data: String): Response
+  def ethGetTransactionByHash(transactionHash: String): Response
 
   /** Returns asynchronously information about a transaction requested by transaction hash */
-  def asyncEthGetTransactionByHash(data: String): AsyncResponse
-
+  def asyncEthGetTransactionByHash(transactionHash: String): AsyncResponse
 
 }

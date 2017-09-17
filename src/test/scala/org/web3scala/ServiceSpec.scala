@@ -447,23 +447,23 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   }
   it should "create new message call transaction or a contract creation for signed transactions, when invoking ethSendRawTransaction method" in {
 
-    val data = "0xf9C510e90bCb47cc49549e57b80814aE3A8bb683"
+    val signedTransactionData = "0xf9C510e90bCb47cc49549e57b80814aE3A8bb683"
 
-    val rq = Request(method = "eth_sendRawTransaction", params = data :: Nil)
+    val rq = Request(method = "eth_sendRawTransaction", params = signedTransactionData :: Nil)
     val rs = GenericResponse("2.0", 33, None, Some("0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331"))
 
-    val response = service(rq, rs).ethSendRawTransaction(data)
+    val response = service(rq, rs).ethSendRawTransaction(signedTransactionData)
 
     response.asInstanceOf[EthTransactionHash].result shouldBe "0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331"
   }
   it should "return Error object, when invoking ethSendRawTransaction method with element larger than containing list" in {
 
-    val data = "0xf9C510e90bCb47cc49549e57b80814aE3A8bb683"
+    val signedTransactionData = "0xf9C510e90bCb47cc49549e57b80814aE3A8bb683"
 
-    val rq = Request(method = "eth_sendRawTransaction", params = data :: Nil)
+    val rq = Request(method = "eth_sendRawTransaction", params = signedTransactionData :: Nil)
     val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "rlp: element is larger than containing list")), Some(AnyRef))
 
-    val response = service(rq, rs).ethSendRawTransaction(data)
+    val response = service(rq, rs).ethSendRawTransaction(signedTransactionData)
 
     response.asInstanceOf[Error].error shouldBe a [ErrorContent]
     response.asInstanceOf[Error].error.code shouldBe -32000
@@ -523,10 +523,10 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   }
   it should "return information about a block by hash, when invoking ethGetBlockByHash method" in {
 
-    val data = "0xacf2a4907cfbfc1b181928893c0375714fad20d4e2877b20822d55370d101c01"
+    val blockHash = "0xacf2a4907cfbfc1b181928893c0375714fad20d4e2877b20822d55370d101c01"
     val fullTransactionObjects = true
 
-    val rq = Request(method = "eth_getBlockByHash", params = data :: fullTransactionObjects :: Nil)
+    val rq = Request(method = "eth_getBlockByHash", params = blockHash :: fullTransactionObjects :: Nil)
 
     val rsData = HashMap(
       "number" -> "0x1919F7",
@@ -589,7 +589,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val rs = GenericResponse("2.0", 33, None, Some(rsData))
 
-    val response = service(rq, rs).ethGetBlockByHash(data, fullTransactionObjects)
+    val response = service(rq, rs).ethGetBlockByHash(blockHash, fullTransactionObjects)
 
     val actualResult = response.asInstanceOf[EthBlockObject].result.get.asInstanceOf[BlockWithTransactions].number
     val expectedResult = Utils.hex2long(rsData("number").toString)
@@ -674,8 +674,8 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   }
   it should "return information about a transaction requested by transaction hash, when invoking ethGetTransactionByHash method" in {
 
-    val data = "0x2fdc8135dd455a8d9b29cb36d6fe7306801ea5872de941c69110c4f471fab430"
-    val rq = Request(method = "eth_getTransactionByHash", params = data :: Nil)
+    val transactionHash = "0x2fdc8135dd455a8d9b29cb36d6fe7306801ea5872de941c69110c4f471fab430"
+    val rq = Request(method = "eth_getTransactionByHash", params = transactionHash :: Nil)
 
     val rsData = HashMap(
       "hash" -> "0x2fdc8135dd455a8d9b29cb36d6fe7306801ea5872de941c69110c4f471fab430",
@@ -693,7 +693,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val rs = GenericResponse("2.0", 33, None, Some(rsData))
 
-    val response = service(rq, rs).ethGetTransactionByHash(data)
+    val response = service(rq, rs).ethGetTransactionByHash(transactionHash)
 
     val actualResult = response.asInstanceOf[EthTransactionObject].result.get.nonce
     val expectedResult = Utils.hex2long(rsData("nonce"))
