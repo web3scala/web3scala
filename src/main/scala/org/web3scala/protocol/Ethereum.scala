@@ -211,5 +211,17 @@ trait Ethereum {
   /** Returns asynchronously information about a block by hash */
   def asyncEthGetBlockByHash(data: String, fullTransactionObjects: Boolean): AsyncResponse
 
+  /** Returns information about a block by block number */
+  def ethGetBlockByNumber(defaultBlock: BlockType, fullTransactionObjects: Boolean): Response
+
+  /** Returns asynchronously information about a block by block number */
+  def asyncEthGetBlockByNumber(defaultBlock: BlockType, fullTransactionObjects: Boolean): AsyncResponse
+
+  /** Returns information about a transaction requested by transaction hash */
+  def ethGetTransactionByHash(data: String): Response
+
+  /** Returns asynchronously information about a transaction requested by transaction hash */
+  def asyncEthGetTransactionByHash(data: String): AsyncResponse
+
 
 }

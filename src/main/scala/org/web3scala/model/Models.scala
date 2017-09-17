@@ -7,7 +7,7 @@ import scala.concurrent.Future
 case class Request(jsonrpc: String = "2.0", method: String, var params: AnyRef = List.empty[String], id: Int = 1)
 
 trait Response
-case class GenericResponse(jsonrpc: String, id: Int, error: Option[ErrorContent], result: Any) extends Response
+case class GenericResponse(jsonrpc: String, id: Int, error: Option[ErrorContent], result: Option[Any]) extends Response
 case class Web3ClientVersion(jsonrpc: String, id: Int, result: String) extends Response
 case class Web3Sha3(jsonrpc: String, id: Int, result: String) extends Response
 case class NetVersion(jsonrpc: String, id: Int, result: Int) extends Response
@@ -29,11 +29,11 @@ case class EthBlockTransactionCount(jsonrpc: String, id: Int, result: Long) exte
 case class EthUncleCount(jsonrpc: String, id: Int, result: Long) extends Response
 case class EthCode(jsonrpc: String, id: Int, result: String) extends Response
 case class EthSign(jsonrpc: String, id: Int, result: String) extends Response
-case class EthTransaction(jsonrpc: String, id: Int, result: String) extends Response
+case class EthTransactionHash(jsonrpc: String, id: Int, result: String) extends Response
 case class EthCall(jsonrpc: String, id: Int, result: String) extends Response
 case class EthEstimatedGas(jsonrpc: String, id: Int, result: Long) extends Response
-case class EthBlock(jsonrpc: String, id: Int, result: Option[Block]) extends Response
-
+case class EthBlockObject(jsonrpc: String, id: Int, result: Option[Block]) extends Response
+case class EthTransactionObject(jsonrpc: String, id: Int, result: Option[Transaction]) extends Response
 
 
 
@@ -46,7 +46,10 @@ case class ErrorContent(code: Int, message: String) {
 }
 
 
-case class Transaction(s: String, blockHash: String, nonce: Long, gasPrice: Long, gas: Long,
+case class Transaction(hash: String, nonce: Long, blockHash: String, blockNumber: Long, transactionIndex: Long,
+                       from: String, to: String, value: Long, gasPrice: Long, gas: Long, input: String)
+
+case class BlockTransaction(s: String, blockHash: String, nonce: Long, gasPrice: Long, gas: Long,
                        to: String, v: Long, hash: String, from: String, blockNumber: Long,
                        r: String, value: Long, input: String, transactionIndex: Long)
 
@@ -61,7 +64,7 @@ case class BlockWithTransactions(number: Long, hash: String, parentHash: String,
                                  transactionsRoot: String, stateRoot: String, receiptsRoot: String, sha3Uncles: String,
                                  logsBloom: String, miner: String, difficulty: Long, totalDifficulty: Long,
                                  extraData: String, size: Long, gasLimit: Long, gasUsed: Long, timestamp: Long,
-                                 transactions: List[Transaction], uncles: List[String]) extends Block
+                                 transactions: List[BlockTransaction], uncles: List[String]) extends Block
 
 trait BlockType
 case class BlockName(value: String) extends BlockType {

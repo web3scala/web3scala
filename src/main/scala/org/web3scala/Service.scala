@@ -19,7 +19,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => Web3ClientVersion(response.jsonrpc, response.id, response.result.asInstanceOf[String])
+      case None => Web3ClientVersion(response.jsonrpc, response.id, response.result.get.asInstanceOf[String])
     }
   }
   override def web3Sha3(data: String): Response = {
@@ -27,7 +27,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => Web3Sha3(response.jsonrpc, response.id, response.result.asInstanceOf[String])
+      case None => Web3Sha3(response.jsonrpc, response.id, response.result.get.asInstanceOf[String])
     }
   }
   override def netVersion: Response = {
@@ -35,7 +35,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => NetVersion(response.jsonrpc, response.id, response.result.asInstanceOf[String].toInt)
+      case None => NetVersion(response.jsonrpc, response.id, response.result.get.asInstanceOf[String].toInt)
     }
   }
   override def netListening: Response = {
@@ -43,7 +43,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => NetListening(response.jsonrpc, response.id, response.result.asInstanceOf[Boolean])
+      case None => NetListening(response.jsonrpc, response.id, response.result.get.asInstanceOf[Boolean])
     }
   }
   override def netPeerCount: Response = {
@@ -51,7 +51,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => NetPeerCount(response.jsonrpc, response.id, Utils.hex2int(response.result.asInstanceOf[String]))
+      case None => NetPeerCount(response.jsonrpc, response.id, Utils.hex2int(response.result.get.asInstanceOf[String]))
     }
   }
   override def ethProtocolVersion: Response = {
@@ -59,7 +59,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthProtocolVersion(response.jsonrpc, response.id, Utils.hex2int(response.result.asInstanceOf[String]))
+      case None => EthProtocolVersion(response.jsonrpc, response.id, Utils.hex2int(response.result.get.asInstanceOf[String]))
     }
   }
   override def ethSyncing: Response = {
@@ -68,7 +68,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
       case None =>
-        response.result match {
+        response.result.get match {
           case b: Boolean => EthSyncingFalse(response.jsonrpc, response.id, b)
           case m: HashMap[_,_] =>
             val map = m.map {
@@ -83,7 +83,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthCoinbase(response.jsonrpc, response.id, response.result.asInstanceOf[String])
+      case None => EthCoinbase(response.jsonrpc, response.id, response.result.get.asInstanceOf[String])
     }
   }
   override def ethMining: Response = {
@@ -91,7 +91,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthMining(response.jsonrpc, response.id, response.result.asInstanceOf[Boolean])
+      case None => EthMining(response.jsonrpc, response.id, response.result.get.asInstanceOf[Boolean])
     }
   }
   override def ethHashrate: Response = {
@@ -99,7 +99,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthHashrate(response.jsonrpc, response.id, Utils.hex2long(response.result.asInstanceOf[String]))
+      case None => EthHashrate(response.jsonrpc, response.id, Utils.hex2long(response.result.get.asInstanceOf[String]))
     }
   }
   override def ethGasPrice: Response = {
@@ -107,7 +107,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthGasPrice(response.jsonrpc, response.id, Utils.hex2long(response.result.asInstanceOf[String]))
+      case None => EthGasPrice(response.jsonrpc, response.id, Utils.hex2long(response.result.get.asInstanceOf[String]))
     }
   }
   override def ethAccounts: Response = {
@@ -115,7 +115,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthAccounts(response.jsonrpc, response.id, response.result.asInstanceOf[List[String]])
+      case None => EthAccounts(response.jsonrpc, response.id, response.result.get.asInstanceOf[List[String]])
     }
   }
   override def ethBlockNumber: Response = {
@@ -123,7 +123,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthBlockNumber(response.jsonrpc, response.id, Utils.hex2long(response.result.asInstanceOf[String]))
+      case None => EthBlockNumber(response.jsonrpc, response.id, Utils.hex2long(response.result.get.asInstanceOf[String]))
     }
   }
   override def ethGetBalance(address: String, defaultBlock: BlockType): Response = {
@@ -132,7 +132,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthBalance(response.jsonrpc, response.id, Utils.hex2long(response.result.asInstanceOf[String]))
+      case None => EthBalance(response.jsonrpc, response.id, Utils.hex2long(response.result.get.asInstanceOf[String]))
     }
   }
   override def ethGetStorageAt(address: String, position: String, defaultBlock: BlockType): Response = {
@@ -141,7 +141,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthStorage(response.jsonrpc, response.id, response.result.asInstanceOf[String])
+      case None => EthStorage(response.jsonrpc, response.id, response.result.get.asInstanceOf[String])
     }
   }
   override def ethGetTransactionCount(address: String, defaultBlock: BlockType): Response = {
@@ -150,7 +150,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthTransactionCount(response.jsonrpc, response.id, Utils.hex2long(response.result.asInstanceOf[String]))
+      case None => EthTransactionCount(response.jsonrpc, response.id, Utils.hex2long(response.result.get.asInstanceOf[String]))
     }
   }
   override def ethGetBlockTransactionCountByHash(blockHash: String): Response = {
@@ -158,7 +158,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthBlockTransactionCount(response.jsonrpc, response.id, Utils.hex2long(response.result.asInstanceOf[String]))
+      case None => EthBlockTransactionCount(response.jsonrpc, response.id, Utils.hex2long(response.result.get.asInstanceOf[String]))
     }
   }
   override def ethGetBlockTransactionCountByNumber(defaultBlock: BlockType): Response = {
@@ -167,7 +167,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthBlockTransactionCount(response.jsonrpc, response.id, Utils.hex2long(response.result.asInstanceOf[String]))
+      case None => EthBlockTransactionCount(response.jsonrpc, response.id, Utils.hex2long(response.result.get.asInstanceOf[String]))
     }
   }
   override def ethGetUncleCountByBlockHash(blockHash: String): Response = {
@@ -175,7 +175,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthUncleCount(response.jsonrpc, response.id, Utils.hex2long(response.result.asInstanceOf[String]))
+      case None => EthUncleCount(response.jsonrpc, response.id, Utils.hex2long(response.result.get.asInstanceOf[String]))
     }
   }
   override def ethGetUncleCountByBlockNumber(defaultBlock: BlockType): Response = {
@@ -184,7 +184,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthUncleCount(response.jsonrpc, response.id, Utils.hex2long(response.result.asInstanceOf[String]))
+      case None => EthUncleCount(response.jsonrpc, response.id, Utils.hex2long(response.result.get.asInstanceOf[String]))
     }
   }
   override def ethGetCode(address: String, defaultBlock: BlockType): Response = {
@@ -193,7 +193,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthCode(response.jsonrpc, response.id, response.result.asInstanceOf[String])
+      case None => EthCode(response.jsonrpc, response.id, response.result.get.asInstanceOf[String])
     }
   }
   override def ethSign(address: String, message: String): Response = {
@@ -201,7 +201,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthSign(response.jsonrpc, response.id, response.result.asInstanceOf[String])
+      case None => EthSign(response.jsonrpc, response.id, response.result.get.asInstanceOf[String])
     }
   }
   override def ethSendTransaction(from: String, to: Option[String], gas: Option[String], gasPrice: Option[String],
@@ -219,7 +219,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthTransaction(response.jsonrpc, response.id, response.result.asInstanceOf[String])
+      case None => EthTransactionHash(response.jsonrpc, response.id, response.result.get.asInstanceOf[String])
     }
   }
   override def ethSendRawTransaction(data: String): Response = {
@@ -227,7 +227,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthTransaction(response.jsonrpc, response.id, response.result.asInstanceOf[String])
+      case None => EthTransactionHash(response.jsonrpc, response.id, response.result.get.asInstanceOf[String])
     }
   }
   override def ethCall(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
@@ -245,7 +245,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthCall(response.jsonrpc, response.id, response.result.asInstanceOf[String])
+      case None => EthCall(response.jsonrpc, response.id, response.result.get.asInstanceOf[String])
     }
   }
   override def ethEstimateGas(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
@@ -262,7 +262,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
-      case None => EthEstimatedGas(response.jsonrpc, response.id, Utils.hex2long(response.result.asInstanceOf[String]))
+      case None => EthEstimatedGas(response.jsonrpc, response.id, Utils.hex2long(response.result.get.asInstanceOf[String]))
     }
   }
   override def ethGetBlockByHash(data: String, fullTransactionObjects: Boolean): Response = {
@@ -273,10 +273,40 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
       case None =>
         import org.web3scala.json.JacksonReaders._
         val block = if (fullTransactionObjects)
-          Extraction.decompose(response.result).as[BlockWithTransactions]
+          Extraction.decompose(response.result.get).as[BlockWithTransactions]
         else
-          Extraction.decompose(response.result).as[BlockWithoutTransactions]
-        EthBlock(response.jsonrpc, response.id, Some(block))
+          Extraction.decompose(response.result.get).as[BlockWithoutTransactions]
+        EthBlockObject(response.jsonrpc, response.id, Some(block))
+    }
+  }
+  override def ethGetBlockByNumber(defaultBlock: BlockType, fullTransactionObjects: Boolean): Response = {
+    val block = Service.blockValue(defaultBlock)
+    val request = Request(method = "eth_getBlockByNumber", params = block :: fullTransactionObjects :: Nil)
+    val response = executeSync(request)
+    response.error match {
+      case Some(e) => Error(response.jsonrpc, response.id, e)
+      case None =>
+        import org.web3scala.json.JacksonReaders._
+        val block = if (fullTransactionObjects)
+          Extraction.decompose(response.result.get).as[BlockWithTransactions]
+        else
+          Extraction.decompose(response.result.get).as[BlockWithoutTransactions]
+        EthBlockObject(response.jsonrpc, response.id, Some(block))
+    }
+  }
+  override def ethGetTransactionByHash(data: String): Response = {
+    val request = Request(method = "eth_getTransactionByHash", params = data :: Nil)
+    val response = executeSync(request)
+    response.error match {
+      case Some(e) => Error(response.jsonrpc, response.id, e)
+      case None =>
+        response.result match {
+          case Some(result) =>
+            import org.web3scala.json.JacksonReaders._
+            val transaction = Extraction.decompose(result).as[Transaction]
+            EthTransactionObject(response.jsonrpc, response.id, Some(transaction))
+          case None => EthTransactionObject(response.jsonrpc, response.id, None)
+        }
     }
   }
 
@@ -425,6 +455,16 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val rq = Request(method = "eth_getBlockByHash", params = data :: fullTransactionObjects :: Nil)
     executeAsync(rq)
   }
+  override def asyncEthGetBlockByNumber(defaultBlock: BlockType, fullTransactionObjects: Boolean): AsyncResponse = {
+    val block = Service.blockValue(defaultBlock)
+    val rq = Request(method = "eth_getBlockByNumber", params = block :: fullTransactionObjects :: Nil)
+    executeAsync(rq)
+  }
+  override def asyncEthGetTransactionByHash(data: String): AsyncResponse = {
+    val rq = Request(method = "eth_getTransactionByHash", params = data :: Nil)
+    executeAsync(rq)
+  }
+
 
 
   import org.web3scala.json.JacksonReaders._

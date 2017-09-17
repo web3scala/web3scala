@@ -11,7 +11,7 @@ object JacksonReaders {
       (json \ "jsonrpc").extract[String],
       (json \ "id").extract[Int],
       (json \ "error").extractOpt[ErrorContent],
-      (json \ "result").extract[Any]
+      (json \ "result").extractOpt[Any]
     )
   }
   implicit object ErrorContentReader extends Reader[ErrorContent] {
@@ -64,12 +64,12 @@ object JacksonReaders {
       Utils.hex2long((json \ "gasLimit").extract[String]),
       Utils.hex2long((json \ "gasUsed").extract[String]),
       Utils.hex2long((json \ "timestamp").extract[String]),
-      (json \ "transactions").children.map(x => x.as[Transaction](TransactionReader, manifest[Transaction])),
+      (json \ "transactions").children.map(x => x.as[BlockTransaction](BlockTransactionReader, manifest[BlockTransaction])),
       (json \ "uncles").extract[List[String]]
     )
   }
-  implicit object TransactionReader extends Reader[Transaction] {
-    def read(json: JValue): Transaction = Transaction(
+  implicit object BlockTransactionReader extends Reader[BlockTransaction] {
+    def read(json: JValue): BlockTransaction = BlockTransaction(
       (json \ "s").extract[String],
       (json \ "blockHash").extract[String],
       Utils.hex2long((json \ "nonce").extract[String]),
@@ -84,6 +84,21 @@ object JacksonReaders {
       Utils.hex2long((json \ "value").extract[String]),
       (json \ "input").extract[String],
       Utils.hex2long((json \ "transactionIndex").extract[String])
+    )
+  }
+  implicit object TransactionReader extends Reader[Transaction] {
+    def read(json: JValue): Transaction = Transaction(
+      (json \ "hash").extract[String],
+      Utils.hex2long((json \ "nonce").extract[String]),
+      (json \ "blockHash").extract[String],
+      Utils.hex2long((json \ "blockNumber").extract[String]),
+      Utils.hex2long((json \ "transactionIndex").extract[String]),
+      (json \ "from").extract[String],
+      (json \ "to").extract[String],
+      Utils.hex2long((json \ "value").extract[String]),
+      Utils.hex2long((json \ "gasPrice").extract[String]),
+      Utils.hex2long((json \ "gas").extract[String]),
+      (json \ "input").extract[String]
     )
   }
 }
