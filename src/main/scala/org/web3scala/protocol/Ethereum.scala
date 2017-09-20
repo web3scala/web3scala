@@ -235,4 +235,34 @@ trait Ethereum {
   /** Returns asynchronously information about a transaction by block number and transaction index position */
   def asyncEthGetTransactionByBlockNumberAndIndex(defaultBlock: BlockType, transactionIndex: String): AsyncResponse
 
+  /** Returns the receipt of a transaction by transaction hash (receipts are not available for pending transactions */
+  def ethGetTransactionReceipt(transactionHash: String): Response
+
+  /** Returns asynchronously the receipt of a transaction by transaction hash (receipts are not available for pending transactions */
+  def asyncEthGetTransactionReceipt(transactionHash: String): AsyncResponse
+
+  /**
+    * Returns information about an uncle of a block by hash and uncle index position
+    * Note: An uncle doesn't contain individual transactions
+    */
+  def ethGetUncleByBlockHashAndIndex(blockHash: String, uncleIndex: String): Response
+
+  /**
+    * Returns asynchronously information about an uncle of a block by hash and uncle index position
+    * Note: An uncle doesn't contain individual transactions
+    */
+  def asyncEthGetUncleByBlockHashAndIndex(blockHash: String, uncleIndex: String): AsyncResponse
+
+  /**
+    * Returns information about an uncle of a block by number and uncle index position
+    * Note: An uncle doesn't contain individual transactions
+    */
+  def ethGetUncleByBlockNumberAndIndex(defaultBlock: BlockType, uncleIndex: String): Response
+
+  /**
+    * Returns asynchronously information about an uncle of a block by number and uncle index position
+    * Note: An uncle doesn't contain individual transactions
+    */
+  def asyncEthGetUncleByBlockNumberAndIndex(defaultBlock: BlockType, uncleIndex: String): AsyncResponse
+
 }

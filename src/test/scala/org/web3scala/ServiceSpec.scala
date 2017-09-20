@@ -591,8 +591,8 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetBlockByHash(blockHash, fullTransactionObjects)
 
-    val actualResult = response.asInstanceOf[EthBlockObject].result.get.asInstanceOf[BlockWithTransactions].number
-    val expectedResult = Utils.hex2long(rsData("number").toString)
+    val actualResult = response.asInstanceOf[EthBlockObject].result.get.asInstanceOf[BlockWithTransactions].nonce
+    val expectedResult = Utils.hex2long(rsData("nonce").toString)
 
     actualResult shouldBe expectedResult
   }
@@ -667,8 +667,8 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetBlockByNumber(blockNumber, fullTransactionObjects)
 
-    val actualResult = response.asInstanceOf[EthBlockObject].result.get.asInstanceOf[BlockWithTransactions].number
-    val expectedResult = Utils.hex2long(rsData("number").toString)
+    val actualResult = response.asInstanceOf[EthBlockObject].result.get.asInstanceOf[BlockWithTransactions].nonce
+    val expectedResult = Utils.hex2long(rsData("nonce").toString)
 
     actualResult shouldBe expectedResult
   }
@@ -758,6 +758,130 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val actualResult = response.asInstanceOf[EthTransactionObject].result.get.nonce
     val expectedResult = Utils.hex2long(rsData("nonce"))
+
+    actualResult shouldBe expectedResult
+  }
+  it should "return the receipt of a transaction by transaction hash, when invoking ethGetTransactionReceipt method" in {
+
+    val transactionHash  = "0x2fdc8135dd455a8d9b29cb36d6fe7306801ea5872de941c69110c4f471fab430"
+
+    val rq = Request(method = "eth_getTransactionReceipt", params = transactionHash :: Nil)
+
+    val rsData = HashMap(
+      "transactionHash" -> "0x2fdc8135dd455a8d9b29cb36d6fe7306801ea5872de941c69110c4f471fab430",
+      "transactionIndex" -> "0x1",
+      "blockHash" -> "0x82af86626cae6ca7ebe2dabbb2a60c8c09af985dc39dd868ded261e0ab775554",
+      "blockNumber" -> "0x19CCFC",
+      "root" -> "0x03e4ffd9ca5df14409457d82ddf14733424a487361d32409922a6d110cc5f403",
+      "logsBloom" -> "0x00000000000000000000000000002000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000020000",
+      "from" -> "0x1a5d20e3957fd0b89eabf1bb95c76ab71d846ab3",
+      "to" -> "0x5f81dc51bdc05f4341afbfa318af5d82c607acad",
+      "cumulativeGasUsed" -> "0x1D6E7",
+      "gasUsed" -> "0x132FA",
+      "contractAddress" -> null,
+      "logs" -> List(
+        HashMap(
+          "removed" -> false,
+          "logIndex" -> "0x0",
+          "transactionIndex" -> "0x1",
+          "transactionHash" -> "0x2fdc8135dd455a8d9b29cb36d6fe7306801ea5872de941c69110c4f471fab430",
+          "blockHash" -> "0x82af86626cae6ca7ebe2dabbb2a60c8c09af985dc39dd868ded261e0ab775554",
+          "blockNumber" -> "0x19CCFC",
+          "address" -> "0x5f81dc51bdc05f4341afbfa318af5d82c607acad",
+          "data" -> "0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000026494e56253246323031373039313725324658564949253246495825324631303435373735393700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006383631303337000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000073133313534363400000000000000000000000000000000000000000000000000",
+          "topics" -> List(
+            "0x662fd29da6ea3246128acda274b24aed94859deaafb7b415fdfa765f69f5dd83"
+          )
+        )
+      )
+    )
+
+    val rs = GenericResponse("2.0", 33, None, Some(rsData))
+
+    val response = service(rq, rs).ethGetTransactionReceipt(transactionHash)
+
+    val actualResult = response.asInstanceOf[EthTransactionReceiptObject].result.get.gasUsed
+    val expectedResult = Utils.hex2long(rsData("gasUsed").toString)
+
+    actualResult shouldBe expectedResult
+  }
+  it should "return information about an uncle of a block by hash and uncle index position, when " +
+    "invoking ethGetUncleByBlockHashAndIndex method" in {
+
+    val blockHash  = "0xacf2a4907cfbfc1b181928893c0375714fad20d4e2877b20822d55370d101c01"
+    val uncleIndex = "0x0"
+
+    val rq = Request(method = "eth_getUncleByBlockHashAndIndex", params = blockHash :: uncleIndex :: Nil)
+
+    val rsData = HashMap(
+      "number" -> "0x1919F6",
+      "hash" -> "0x7a77093b82b5dff8af33954b16b51a93543d88cba8c814ad29c29f38f09e49f7",
+      "parentHash" -> "0x5cc0d59d11bb64090ad3e1c832526c9640702d5a896d15627a2a5361f3a1218f",
+      "mixHash" -> "0x7846d296cc5d3cd42279dc427f3d69fb0804d9a04857d47fc4522695e931cf52",
+      "nonce" -> "0x9f7aaa9401bf786f",
+      "transactionsRoot" -> "0x4278e6ec961c8d890a4edc11242d15378be7d92e67970f324ebea02319e50420",
+      "stateRoot" -> "0x2dfcddf3c2b07bfa9f68b76b520472e44a4c50d67d84092e916441c6b51a7d3d",
+      "receiptsRoot" -> "0xa3c41dbb018f8a7dc8206cc9ea52cfebc03e84eb41d9323baddc074fe700c170",
+      "sha3Uncles" -> "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+      "logsBloom" -> "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000010000000000000000000000000000000000000010000000000040000000000100400000000000000000000000",
+      "miner" -> "0x213",
+      "difficulty" -> "0x1037F0A81",
+      "totalDifficulty" -> "0x6364C735FC2DB",
+      "extraData" -> "0x526f707374656e20506f6f6c",
+      "size" -> "0x213",
+      "gasLimit" -> "0x47E7C4",
+      "gasUsed" -> "0x2D716",
+      "timestamp" -> "0x59B4A7FF",
+      "transactions" -> List.empty[String],
+      "uncles" -> List.empty[String]
+    )
+
+    val rs = GenericResponse("2.0", 33, None, Some(rsData))
+
+    val response = service(rq, rs).ethGetUncleByBlockHashAndIndex(blockHash, uncleIndex)
+
+    val actualResult = response.asInstanceOf[EthBlockObject].result.get.asInstanceOf[BlockWithoutTransactions].nonce
+    val expectedResult = Utils.hex2bigint(rsData("nonce").toString)
+
+    actualResult shouldBe expectedResult
+  }
+  it should "return information about an uncle of a block by number and uncle index position, when " +
+    "invoking ethGetUncleByBlockNumberAndIndex method" in {
+
+    val blockNumber  = BlockNumber(1692292)
+    val uncleIndex = "0x1"
+
+    val rq = Request(method = "eth_getUncleByBlockNumberAndIndex", params = blockNumber :: uncleIndex :: Nil)
+
+    val rsData = HashMap(
+      "number" -> "0x19D282",
+      "hash" -> "0xa4363c8501f337a47cfa610c13b219e8125005dc90a5575e0e12738a556cad7d",
+      "parentHash" -> "0x588ea98dc6e0628855bcb951f93104c8a2e71f4ad337aa5280d7532df2b9e834",
+      "mixHash" -> "0xf1ac58179528a38af0dec308149a8934638bc5c76dfb64be306f6ef63d4237c9",
+      "nonce" -> "0x8b846337093d26b6",
+      "transactionsRoot" -> "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+      "stateRoot" -> "0x47a7d44425edd24fdfd1aeb6acbd6f5d15dc0bc79fe2c8f86e18256a540eb5aa",
+      "receiptsRoot" -> "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+      "sha3Uncles" -> "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+      "logsBloom" -> "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "miner" -> "0x210",
+      "difficulty" -> "0x291ACFB0C",
+      "totalDifficulty" -> "null",
+      "extraData" -> "0x526f707374656e20506f6f6c",
+      "size" -> "0x210",
+      "gasLimit" -> "0x47E7C4",
+      "gasUsed" -> "0x0",
+      "timestamp" -> "0x59BEC39A",
+      "transactions" -> List.empty[String],
+      "uncles" -> List.empty[String]
+    )
+
+    val rs = GenericResponse("2.0", 33, None, Some(rsData))
+
+    val response = service(rq, rs).ethGetUncleByBlockNumberAndIndex(blockNumber, uncleIndex)
+
+    val actualResult = response.asInstanceOf[EthBlockObject].result.get.asInstanceOf[BlockWithoutTransactions].nonce
+    val expectedResult = Utils.hex2bigint(rsData("nonce").toString)
 
     actualResult shouldBe expectedResult
   }

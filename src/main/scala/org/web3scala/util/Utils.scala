@@ -21,6 +21,13 @@ object Utils {
       HEX_PREFIX + Integer.toHexString(value)
     else
       throw new QuantityEncodingException("Negative value not allowed")
+  @throws(classOf[QuantityEncodingException])
+  def bigint2hex(value: BigInt): String =
+    if (value.signum > 0)
+      HEX_PREFIX + value.toString(16)
+    else
+      throw new QuantityEncodingException("Negative value not allowed")
+
   @throws(classOf[QuantityDecodingException])
   def hex2long(value: String): Long =
     if (isValidHex(value))
@@ -31,6 +38,12 @@ object Utils {
   def hex2int(value: String): Int =
     if (isValidHex(value))
       java.lang.Integer.parseInt(value.substring(2), 16)
+    else
+      throw new QuantityDecodingException("Invalid hex value")
+  @throws(classOf[QuantityDecodingException])
+  def hex2bigint(value: String): BigInt =
+    if (isValidHex(value))
+      BigInt(value.substring(2), 16)
     else
       throw new QuantityDecodingException("Invalid hex value")
   def isValidHex(value: String): Boolean = {

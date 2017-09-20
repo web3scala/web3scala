@@ -26,7 +26,7 @@ object JacksonReaders {
       (json \ "hash").extract[String],
       (json \ "parentHash").extract[String],
       (json \ "mixHash").extract[String],
-      (json \ "nonce").extract[String],
+      Utils.hex2bigint((json \ "nonce").extract[String]),
       (json \ "transactionsRoot").extract[String],
       (json \ "stateRoot").extract[String],
       (json \ "receiptsRoot").extract[String],
@@ -34,7 +34,7 @@ object JacksonReaders {
       (json \ "logsBloom").extract[String],
       (json \ "size").extract[String],
       Utils.hex2long((json \ "difficulty").extract[String]),
-      Utils.hex2long((json \ "totalDifficulty").extract[String]),
+      (json \ "totalDifficulty").extract[String],
       (json \ "extraData").extract[String],
       Utils.hex2long((json \ "size").extract[String]),
       Utils.hex2long((json \ "gasLimit").extract[String]),
@@ -50,7 +50,7 @@ object JacksonReaders {
       (json \ "hash").extract[String],
       (json \ "parentHash").extract[String],
       (json \ "mixHash").extract[String],
-      (json \ "nonce").extract[String],
+      Utils.hex2bigint((json \ "nonce").extract[String]),
       (json \ "transactionsRoot").extract[String],
       (json \ "stateRoot").extract[String],
       (json \ "receiptsRoot").extract[String],
@@ -58,7 +58,7 @@ object JacksonReaders {
       (json \ "logsBloom").extract[String],
       (json \ "size").extract[String],
       Utils.hex2long((json \ "difficulty").extract[String]),
-      Utils.hex2long((json \ "totalDifficulty").extract[String]),
+      (json \ "totalDifficulty").extract[String],
       (json \ "extraData").extract[String],
       Utils.hex2long((json \ "size").extract[String]),
       Utils.hex2long((json \ "gasLimit").extract[String]),
@@ -99,6 +99,35 @@ object JacksonReaders {
       Utils.hex2long((json \ "gasPrice").extract[String]),
       Utils.hex2long((json \ "gas").extract[String]),
       (json \ "input").extract[String]
+    )
+  }
+  implicit object TransactionReceiptReader extends Reader[TransactionReceipt] {
+    def read(json: JValue): TransactionReceipt = TransactionReceipt(
+      (json \ "transactionHash").extract[String],
+      Utils.hex2int((json \ "transactionIndex").extract[String]),
+      (json \ "blockHash").extract[String],
+      Utils.hex2long((json \ "blockNumber").extract[String]),
+      (json \ "root").extract[String],
+      (json \ "logsBloom").extract[String],
+      (json \ "from").extract[String],
+      (json \ "to").extract[String],
+      Utils.hex2long((json \ "cumulativeGasUsed").extract[String]),
+      Utils.hex2long((json \ "gasUsed").extract[String]),
+      (json \ "contractAddress").extract[String],
+      (json \ "logs").children.map(x => x.as[FilterLog](FilterLogReader, manifest[FilterLog]))
+    )
+  }
+  implicit object FilterLogReader extends Reader[FilterLog] {
+    def read(json: JValue): FilterLog = FilterLog(
+      (json \ "removed").extract[Boolean],
+      Utils.hex2int((json \ "logIndex").extract[String]),
+      Utils.hex2int((json \ "transactionIndex").extract[String]),
+      (json \ "transactionHash").extract[String],
+      (json \ "blockHash").extract[String],
+      Utils.hex2long((json \ "blockNumber").extract[String]),
+      (json \ "address").extract[String],
+      (json \ "data").extract[String],
+      (json \ "topics").extract[List[String]]
     )
   }
 }

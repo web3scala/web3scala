@@ -34,6 +34,7 @@ case class EthCall(jsonrpc: String, id: Int, result: String) extends Response
 case class EthEstimatedGas(jsonrpc: String, id: Int, result: Long) extends Response
 case class EthBlockObject(jsonrpc: String, id: Int, result: Option[Block]) extends Response
 case class EthTransactionObject(jsonrpc: String, id: Int, result: Option[Transaction]) extends Response
+case class EthTransactionReceiptObject(jsonrpc: String, id: Int, result: Option[TransactionReceipt]) extends Response
 
 
 
@@ -45,26 +46,30 @@ case class ErrorContent(code: Int, message: String) {
   override def toString: String = s"Error/code=$code/message=$message]"
 }
 
+case class FilterLog(removed: Boolean, logIndex: Int, transactionIndex: Int, transactionHash: String,
+                     blockHash: String, blockNumber: Long, address: String, data: String, topics: List[String])
+
+case class TransactionReceipt(transactionHash: String, transactionIndex: Int, blockHash: String, blockNumber: Long,
+                              root: String, logsBloom: String, from: String, to: String,
+                              cumulativeGasUsed: Long, gasUsed: Long, contractAddress: String, logs: List[FilterLog])
 
 case class Transaction(hash: String, nonce: Long, blockHash: String, blockNumber: Long, transactionIndex: Long,
                        from: String, to: String, value: Long, gasPrice: Long, gas: Long, input: String)
 
-case class BlockTransaction(s: String, blockHash: String, nonce: Long, gasPrice: Long, gas: Long,
-                       to: String, v: Long, hash: String, from: String, blockNumber: Long,
-                       r: String, value: Long, input: String, transactionIndex: Long)
-
 trait Block
-case class BlockWithoutTransactions(number: Long, hash: String, parentHash: String, mixHash: String, nonce: String,
+case class BlockWithoutTransactions(number: Long, hash: String, parentHash: String, mixHash: String, nonce: BigInt,
                                     transactionsRoot: String, stateRoot: String, receiptsRoot: String, sha3Uncles: String,
-                                    logsBloom: String, miner: String, difficulty: Long, totalDifficulty: Long,
+                                    logsBloom: String, miner: String, difficulty: Long, totalDifficulty: String,
                                     extraData: String, size: Long, gasLimit: Long, gasUsed: Long, timestamp: Long,
                                     transactions: List[String], uncles: List[String]) extends Block
-
-case class BlockWithTransactions(number: Long, hash: String, parentHash: String, mixHash: String, nonce: String,
+case class BlockWithTransactions(number: Long, hash: String, parentHash: String, mixHash: String, nonce: BigInt,
                                  transactionsRoot: String, stateRoot: String, receiptsRoot: String, sha3Uncles: String,
-                                 logsBloom: String, miner: String, difficulty: Long, totalDifficulty: Long,
+                                 logsBloom: String, miner: String, difficulty: Long, totalDifficulty: String,
                                  extraData: String, size: Long, gasLimit: Long, gasUsed: Long, timestamp: Long,
                                  transactions: List[BlockTransaction], uncles: List[String]) extends Block
+case class BlockTransaction(s: String, blockHash: String, nonce: Long, gasPrice: Long, gas: Long,
+                            to: String, v: Long, hash: String, from: String, blockNumber: Long,
+                            r: String, value: Long, input: String, transactionIndex: Long)
 
 trait BlockType
 case class BlockName(value: String) extends BlockType {
