@@ -21,7 +21,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     jsonMapperMock = mock[JacksonJsonMapper]
   }
 
-  private def service(rq: Request, rs: GenericResponse) = {
+  private def service(rq: GenericRequest, rs: GenericResponse) = {
 
     implicit val formats: DefaultFormats.type = DefaultFormats
 
@@ -35,7 +35,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
   "Service" should "return current Ethereum client version, when invoking web3ClientVersion method" in {
 
-    val rq = Request(method = "web3_clientVersion")
+    val rq = GenericRequest(method = "web3_clientVersion")
     val rs = GenericResponse("2.0", 33, None, Some("Geth/v1.6.7-stable-ab5646c5/darwin-amd64/go1.8.3"))
 
     val response = service(rq, rs).web3ClientVersion
@@ -45,7 +45,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   it should "return Keccak-256 of the given data, when invoking web3Sha3 method with valid input" in {
 
     val rqData = Utils.int2hex(123)
-    val rq = Request(method = "web3_sha3", params = rqData :: Nil)
+    val rq = GenericRequest(method = "web3_sha3", params = rqData :: Nil)
     val rs = GenericResponse("2.0", 33, None, Some("0xa91eddf639b0b768929589c1a9fd21dcb0107199bdd82e55c5348018a1572f52"))
 
     val response = service(rq, rs).web3Sha3(rqData)
@@ -55,7 +55,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   it should "return Error object, when invoking web3Sha3 method with invalid input" in {
 
     val rqData = "test"
-    val rq = Request(method = "web3_sha3", params = rqData :: Nil)
+    val rq = GenericRequest(method = "web3_sha3", params = rqData :: Nil)
     val rs = GenericResponse("2.0", 33,
       Some(
         ErrorContent(-32602,
@@ -73,7 +73,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   }
   it should "return current network id, when invoking netVersion method" in {
 
-    val rq = Request(method = "net_version")
+    val rq = GenericRequest(method = "net_version")
     val rs = GenericResponse("2.0", 33, None, Some("3"))
 
     val response = service(rq, rs).netVersion
@@ -82,7 +82,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   }
   it should "return true if client is actively listening for network connections, when invoking netListening method" in {
 
-    val rq = Request(method = "net_listening")
+    val rq = GenericRequest(method = "net_listening")
     val rs = GenericResponse("2.0", 33, None, Some(true))
 
     val response = service(rq, rs).netListening
@@ -91,7 +91,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   }
   it should "return number of peers currently connected to the client, when invoking netPeerCount method" in {
 
-    val rq = Request(method = "net_peerCount")
+    val rq = GenericRequest(method = "net_peerCount")
     val rs = GenericResponse("2.0", 33, None, Some("0xB"))
 
     val response = service(rq, rs).netPeerCount
@@ -100,7 +100,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   }
   it should "return the current ethereum protocol version, when invoking ethProtocolVersion method" in {
 
-    val rq = Request(method = "eth_protocolVersion")
+    val rq = GenericRequest(method = "eth_protocolVersion")
     val rs = GenericResponse("2.0", 33, None, Some("0x3F"))
 
     val response = service(rq, rs).ethProtocolVersion
@@ -109,7 +109,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   }
   it should "return false, when invoking ethSyncing method and synchronization with blockchain is not taking place" in {
 
-    val rq = Request(method = "eth_syncing")
+    val rq = GenericRequest(method = "eth_syncing")
     val rs = GenericResponse("2.0", 33, None, Some(false))
 
     val response = service(rq, rs).ethSyncing
@@ -125,7 +125,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
       ("highestBlock", "0xcbccb"),
       ("startingBlock", "0x1d640")
     )
-    val rq = Request(method = "eth_syncing")
+    val rq = GenericRequest(method = "eth_syncing")
     val rs = GenericResponse("2.0", 33, None, Some(rsData))
 
     val response = service(rq, rs).ethSyncing
@@ -135,7 +135,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   }
   it should "return the client coinbase address, when invoking ethCoinbase method" in {
 
-    val rq = Request(method = "eth_coinbase")
+    val rq = GenericRequest(method = "eth_coinbase")
     val rs = GenericResponse("2.0", 33, None, Some("0x1f2e3994505ea24642d94d00a4bcf0159ed1a617"))
 
     val response = service(rq, rs).ethCoinbase
@@ -144,7 +144,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   }
   it should "return true if client is actively mining new blocks, when invoking ethMining method" in {
 
-    val rq = Request(method = "eth_mining")
+    val rq = GenericRequest(method = "eth_mining")
     val rs = GenericResponse("2.0", 33, None, Some(false))
 
     val response = service(rq, rs).ethMining
@@ -153,7 +153,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   }
   it should "return the number of hashes per second that the node is mining with, when invoking ethHashrate method" in {
 
-    val rq = Request(method = "eth_hashrate")
+    val rq = GenericRequest(method = "eth_hashrate")
     val rs = GenericResponse("2.0", 33, None, Some("0x0"))
 
     val response = service(rq, rs).ethHashrate
@@ -162,7 +162,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   }
   it should "return the current price per gas in wei, when invoking ethGasPrice method" in {
 
-    val rq = Request(method = "eth_gasPrice")
+    val rq = GenericRequest(method = "eth_gasPrice")
     val rs = GenericResponse("2.0", 33, None, Some("0x6FC23AC00"))
 
     val response = service(rq, rs).ethGasPrice
@@ -176,7 +176,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
       "0xd179a76b1d0a91dc8287afc9032cae34f283873d",
       "0xf9c510e90bcb47cc49549e57b80814ae3a8bb683"
     )
-    val rq = Request(method = "eth_accounts")
+    val rq = GenericRequest(method = "eth_accounts")
     val rs = GenericResponse("2.0", 33, None, Some(rsData))
 
     val response = service(rq, rs).ethAccounts
@@ -186,7 +186,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   }
   it should "return the number of most recent block, when invoking ethBlockNumber method" in {
 
-    val rq = Request(method = "eth_blockNumber")
+    val rq = GenericRequest(method = "eth_blockNumber")
     val rs = GenericResponse("2.0", 33, None, Some("0x18AA03"))
 
     val response = service(rq, rs).ethBlockNumber
@@ -199,7 +199,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val blockNumber = BlockNumber(1559297)
     val block = Service.blockValue(blockNumber)
 
-    val rq = Request(method = "eth_getBalance", params = address :: block :: Nil)
+    val rq = GenericRequest(method = "eth_getBalance", params = address :: block :: Nil)
     val rs = GenericResponse("2.0", 33, None, Some("0x491C86A7F255B000"))
 
     val response = service(rq, rs).ethGetBalance(address, blockNumber)
@@ -212,7 +212,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val blockNumber = BlockNumber(156898)
     val block = Service.blockValue(blockNumber)
 
-    val rq = Request(method = "eth_getBalance", params = address :: block :: Nil)
+    val rq = GenericRequest(method = "eth_getBalance", params = address :: block :: Nil)
     val rs = GenericResponse("2.0", 33,
       Some(
         ErrorContent(-32000,
@@ -234,7 +234,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val blockName = BlockName("latest")
     val block = Service.blockValue(blockName)
 
-    val rq = Request(method = "eth_getBalance", params = address :: block :: Nil)
+    val rq = GenericRequest(method = "eth_getBalance", params = address :: block :: Nil)
     val rs = GenericResponse("2.0", 33, None, Some("0x6F05B59D3B20000"))
 
     val response = service(rq, rs).ethGetBalance(address, blockName)
@@ -248,7 +248,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val blockName = BlockName("latest")
     val block = Service.blockValue(blockName)
 
-    val rq = Request(method = "eth_getStorageAt", params = address :: position :: block :: Nil)
+    val rq = GenericRequest(method = "eth_getStorageAt", params = address :: position :: block :: Nil)
     val rs = GenericResponse("2.0", 33, None, Some("0x0000000000000000000000000000000000000000000000000000000000000000"))
 
     val response = service(rq, rs).ethGetStorageAt(address, position, blockName)
@@ -262,7 +262,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val blockName = BlockName("latest")
     val block = Service.blockValue(blockName)
 
-    val rq = Request(method = "eth_getTransactionCount", params = address :: block :: Nil)
+    val rq = GenericRequest(method = "eth_getTransactionCount", params = address :: block :: Nil)
     val rs = GenericResponse("2.0", 33, None, Some("0xA"))
 
     val response = service(rq, rs).ethGetTransactionCount(address, blockName)
@@ -273,7 +273,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val blockHash = "0xc40da02dbc5bb5cbde7c8c8cb7923797afc3078e3589b5537ec72b4726da8843"
 
-    val rq = Request(method = "eth_getBlockTransactionCountByHash", params = blockHash :: Nil)
+    val rq = GenericRequest(method = "eth_getBlockTransactionCountByHash", params = blockHash :: Nil)
     val rs = GenericResponse("2.0", 33, None, Some("0x8"))
 
     val response = service(rq, rs).ethGetBlockTransactionCountByHash(blockHash)
@@ -284,7 +284,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val blockHash = "0x9b2055d370f73ec7d8a03e965129118dc8f5bf83"
 
-    val rq = Request(method = "eth_getBlockTransactionCountByHash", params = blockHash :: Nil)
+    val rq = GenericRequest(method = "eth_getBlockTransactionCountByHash", params = blockHash :: Nil)
     val rs = GenericResponse("2.0", 33,
       Some(
         ErrorContent(-32602,
@@ -305,7 +305,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val blockNumber = BlockNumber(1128977)
     val block = Service.blockValue(blockNumber)
 
-    val rq = Request(method = "eth_getBlockTransactionCountByNumber", params = block :: Nil)
+    val rq = GenericRequest(method = "eth_getBlockTransactionCountByNumber", params = block :: Nil)
     val rs = GenericResponse("2.0", 33, None, Some("0x6"))
 
     val response = service(rq, rs).ethGetBlockTransactionCountByNumber(blockNumber)
@@ -316,7 +316,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val blockHash = "0x7c70252114eafc143743e998eb5dbf11b2c61a716590982821fdd13f174ed891"
 
-    val rq = Request(method = "eth_getUncleCountByBlockHash", params = blockHash :: Nil)
+    val rq = GenericRequest(method = "eth_getUncleCountByBlockHash", params = blockHash :: Nil)
     val rs = GenericResponse("2.0", 33, None, Some("0x0"))
 
     val response = service(rq, rs).ethGetUncleCountByBlockHash(blockHash)
@@ -328,7 +328,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val blockNumber = BlockNumber(1128977)
     val block = Service.blockValue(blockNumber)
 
-    val rq = Request(method = "eth_getUncleCountByBlockNumber", params = block :: Nil)
+    val rq = GenericRequest(method = "eth_getUncleCountByBlockNumber", params = block :: Nil)
     val rs = GenericResponse("2.0", 33, None, Some("0x0"))
 
     val response = service(rq, rs).ethGetUncleCountByBlockNumber(blockNumber)
@@ -341,7 +341,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val blockNumber = BlockNumber(1128977)
     val block = Service.blockValue(blockNumber)
 
-    val rq = Request(method = "eth_getCode", params = address :: block :: Nil)
+    val rq = GenericRequest(method = "eth_getCode", params = address :: block :: Nil)
     val rs = GenericResponse("2.0", 33, None, Some("0x0"))
 
     val response = service(rq, rs).ethGetCode(address, blockNumber)
@@ -353,7 +353,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val address = "0xf9C510e90bCb47cc49549e57b80814aE3A8bb683"
     val message = "0xdeadbeef"
 
-    val rq = Request(method = "eth_sign", params = address :: message :: Nil)
+    val rq = GenericRequest(method = "eth_sign", params = address :: message :: Nil)
     val rs = GenericResponse("2.0", 33, None,
       Some("0xa3f20717a250c2b0b729b7e5becbff67fdaef7e0699da4de7ca5895b02a170a12d887fd3b17bfdce3481f10bea41f45ba9f709d39ce8325427b57afcfc994cee1b")
     )
@@ -368,7 +368,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val address = "0x9b2055d370f73ec7d8a03e965129118dc8f5bf83"
     val message = "0xdeadbeef"
 
-    val rq = Request(method = "eth_sign", params = address :: message :: Nil)
+    val rq = GenericRequest(method = "eth_sign", params = address :: message :: Nil)
     val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "unknown account")), Some(AnyRef))
 
     val response = service(rq, rs).ethSign(address, message)
@@ -382,7 +382,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val address = "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617"
     val message = "0xdeadbeef"
 
-    val rq = Request(method = "eth_sign", params = address :: message :: Nil)
+    val rq = GenericRequest(method = "eth_sign", params = address :: message :: Nil)
     val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "authentication needed: password or unlock")), Some(AnyRef))
 
     val response = service(rq, rs).ethSign(address, message)
@@ -402,7 +402,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
       "data" -> "0x68656c6c6f",
       "nonce" -> ""
     )
-    val rq = Request(method = "eth_sendTransaction", params = params)
+    val rq = GenericRequest(method = "eth_sendTransaction", params = params)
     val rs = GenericResponse("2.0", 33, None, Some("0x88146924ed5462e0c213b2c1f7d2c4a9f8a3218218a27642b5ea632e465b5a42"))
 
     val response = service(rq, rs).ethSendTransaction(
@@ -428,7 +428,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
       "data" -> "0x68656c6c6f",
       "nonce" -> ""
     )
-    val rq = Request(method = "eth_sendTransaction", params = params)
+    val rq = GenericRequest(method = "eth_sendTransaction", params = params)
     val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "authentication needed: password or unlock")), Some(AnyRef))
 
     val response = service(rq, rs).ethSendTransaction(
@@ -449,7 +449,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val signedTransactionData = "0xf9C510e90bCb47cc49549e57b80814aE3A8bb683"
 
-    val rq = Request(method = "eth_sendRawTransaction", params = signedTransactionData :: Nil)
+    val rq = GenericRequest(method = "eth_sendRawTransaction", params = signedTransactionData :: Nil)
     val rs = GenericResponse("2.0", 33, None, Some("0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331"))
 
     val response = service(rq, rs).ethSendRawTransaction(signedTransactionData)
@@ -460,7 +460,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val signedTransactionData = "0xf9C510e90bCb47cc49549e57b80814aE3A8bb683"
 
-    val rq = Request(method = "eth_sendRawTransaction", params = signedTransactionData :: Nil)
+    val rq = GenericRequest(method = "eth_sendRawTransaction", params = signedTransactionData :: Nil)
     val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "rlp: element is larger than containing list")), Some(AnyRef))
 
     val response = service(rq, rs).ethSendRawTransaction(signedTransactionData)
@@ -481,7 +481,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     )
     val blockNumber  = BlockNumber(1128977)
     val block = Service.blockValue(blockNumber)
-    val rq = Request(method = "eth_call", params = params :: block :: Nil)
+    val rq = GenericRequest(method = "eth_call", params = params :: block :: Nil)
     val rs = GenericResponse("2.0", 33, None, Some("0x"))
 
     val response = service(rq, rs).ethCall(
@@ -507,7 +507,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
       "value" -> "0x9184e72a",
       "data" -> "0x68656c6c6f"
     )
-    val rq = Request(method = "eth_call", params = params :: Nil)
+    val rq = GenericRequest(method = "eth_call", params = params :: Nil)
     val rs = GenericResponse("2.0", 33, None, Some("0x535D"))
 
     val response = service(rq, rs).ethEstimateGas(
@@ -526,7 +526,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val blockHash = "0xacf2a4907cfbfc1b181928893c0375714fad20d4e2877b20822d55370d101c01"
     val fullTransactionObjects = true
 
-    val rq = Request(method = "eth_getBlockByHash", params = blockHash :: fullTransactionObjects :: Nil)
+    val rq = GenericRequest(method = "eth_getBlockByHash", params = blockHash :: fullTransactionObjects :: Nil)
 
     val rsData = HashMap(
       "number" -> "0x1919F7",
@@ -602,7 +602,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val block = Service.blockValue(blockNumber)
     val fullTransactionObjects = true
 
-    val rq = Request(method = "eth_getBlockByNumber", params = block :: fullTransactionObjects :: Nil)
+    val rq = GenericRequest(method = "eth_getBlockByNumber", params = block :: fullTransactionObjects :: Nil)
 
     val rsData = HashMap(
       "number" -> "0x1919F7",
@@ -675,7 +675,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   it should "return information about a transaction requested by transaction hash, when invoking ethGetTransactionByHash method" in {
 
     val transactionHash = "0x2fdc8135dd455a8d9b29cb36d6fe7306801ea5872de941c69110c4f471fab430"
-    val rq = Request(method = "eth_getTransactionByHash", params = transactionHash :: Nil)
+    val rq = GenericRequest(method = "eth_getTransactionByHash", params = transactionHash :: Nil)
 
     val rsData = HashMap(
       "hash" -> "0x2fdc8135dd455a8d9b29cb36d6fe7306801ea5872de941c69110c4f471fab430",
@@ -705,7 +705,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val blockHash = "0x190b2f6fccbedaff8d86fda056703bab1d45b9a7039565f461c1cb08135173b8"
     val transactionIndex = "0x0"
-    val rq = Request(method = "eth_getTransactionByBlockHashAndIndex", params = blockHash :: transactionIndex :: Nil)
+    val rq = GenericRequest(method = "eth_getTransactionByBlockHashAndIndex", params = blockHash :: transactionIndex :: Nil)
 
     val rsData = HashMap(
       "hash" -> "0xc5d56567de1ea70bd2ca0923cf668bab2256d22ccfd37a2015f0993860893ea3",
@@ -736,7 +736,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val blockNumber  = BlockNumber(1691313)
     val block = Service.blockValue(blockNumber)
     val transactionIndex = "0x0"
-    val rq = Request(method = "eth_getTransactionByBlockNumberAndIndex", params = block :: transactionIndex :: Nil)
+    val rq = GenericRequest(method = "eth_getTransactionByBlockNumberAndIndex", params = block :: transactionIndex :: Nil)
 
     val rsData = HashMap(
       "hash" -> "0xc5d56567de1ea70bd2ca0923cf668bab2256d22ccfd37a2015f0993860893ea3",
@@ -765,7 +765,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val transactionHash  = "0x2fdc8135dd455a8d9b29cb36d6fe7306801ea5872de941c69110c4f471fab430"
 
-    val rq = Request(method = "eth_getTransactionReceipt", params = transactionHash :: Nil)
+    val rq = GenericRequest(method = "eth_getTransactionReceipt", params = transactionHash :: Nil)
 
     val rsData = HashMap(
       "transactionHash" -> "0x2fdc8135dd455a8d9b29cb36d6fe7306801ea5872de941c69110c4f471fab430",
@@ -811,7 +811,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val blockHash  = "0xacf2a4907cfbfc1b181928893c0375714fad20d4e2877b20822d55370d101c01"
     val uncleIndex = "0x0"
 
-    val rq = Request(method = "eth_getUncleByBlockHashAndIndex", params = blockHash :: uncleIndex :: Nil)
+    val rq = GenericRequest(method = "eth_getUncleByBlockHashAndIndex", params = blockHash :: uncleIndex :: Nil)
 
     val rsData = HashMap(
       "number" -> "0x1919F6",
@@ -851,7 +851,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val blockNumber  = BlockNumber(1692292)
     val uncleIndex = "0x1"
 
-    val rq = Request(method = "eth_getUncleByBlockNumberAndIndex", params = blockNumber :: uncleIndex :: Nil)
+    val rq = GenericRequest(method = "eth_getUncleByBlockNumberAndIndex", params = blockNumber :: uncleIndex :: Nil)
 
     val rsData = HashMap(
       "number" -> "0x19D282",

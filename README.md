@@ -84,7 +84,7 @@ Result:
     $ Highest Balance: 0x1f2e3994505ea24642d94d00a4bcf0159ed1a617
 
 The code is non-blocking on I/O at any point, and http requests execution fully parallelized.
-Working sample in the _examples_ directory.
+You'll find a working sample in the _examples_ directory.
 
 ## Dependencies
 
