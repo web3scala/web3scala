@@ -230,18 +230,9 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
       case None => EthTransactionHash(response.jsonrpc, response.id, response.result.get.asInstanceOf[String])
     }
   }
-  override def ethCall(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
-                       value: Option[String], data: Option[String], defaultBlock: BlockType): Response = {
-    val params = HashMap(
-      "from" -> from,
-      "to" -> to,
-      "gas" -> gas,
-      "gasPrice" -> gasPrice,
-      "value" -> value,
-      "data" -> data
-    )
+  override def ethCall(obj: EthCallObject, defaultBlock: BlockType): Response = {
     val block = Service.blockValue(defaultBlock)
-    val request = GenericRequest(method = "eth_call", params = params :: block :: Nil)
+    val request = GenericRequest(method = "eth_call", params = obj :: block :: Nil)
     val response = executeSync(request)
     response.error match {
       case Some(e) => Error(response.jsonrpc, response.id, e)
@@ -503,18 +494,9 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val rq = GenericRequest(method = "eth_sendRawTransaction", params = data :: Nil)
     executeAsync(rq)
   }
-  override def asyncEthCall(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
-                            value: Option[String], data: Option[String], defaultBlock: BlockType): AsyncResponse = {
-    val params = HashMap(
-      "from" -> from,
-      "to" -> to,
-      "gas" -> gas,
-      "gasPrice" -> gasPrice,
-      "value" -> value,
-      "data" -> data
-    )
+  override def asyncEthCall(obj: EthCallObject, defaultBlock: BlockType): AsyncResponse = {
     val block = Service.blockValue(defaultBlock)
-    val rq = GenericRequest(method = "eth_call", params = params :: block :: Nil)
+    val rq = GenericRequest(method = "eth_call", params = obj :: block :: Nil)
     executeAsync(rq)
   }
   override def asyncEthEstimateGas(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],

@@ -1,6 +1,6 @@
 package org.web3scala.protocol
 
-import org.web3scala.model.{AsyncResponse, BlockType, Response}
+import org.web3scala.model._
 
 trait Ethereum {
 
@@ -184,12 +184,10 @@ trait Ethereum {
   def asyncEthSendRawTransaction(signedTransactionData: String): AsyncResponse
 
   /** Executes a new message call immediately without creating a transaction on the block chain */
-  def ethCall(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
-              value: Option[String], data: Option[String], defaultBlock: BlockType): Response
+  def ethCall(obj: EthCallObject, defaultBlock: BlockType): Response
 
   /** Executes asynchronously a new message call immediately without creating a transaction on the block chain */
-  def asyncEthCall(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
-                   value: Option[String], data: Option[String], defaultBlock: BlockType): AsyncResponse
+  def asyncEthCall(obj: EthCallObject, defaultBlock: BlockType): AsyncResponse
 
   /**
     * Makes a call or transaction, which won't be added to the blockchain and returns the used gas, which

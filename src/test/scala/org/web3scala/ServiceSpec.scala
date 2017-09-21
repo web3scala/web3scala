@@ -471,28 +471,22 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   }
   it should "execute a new message call immediately without creating a transaction on the block chain, when invoking ethCall method" in {
 
-    val params = HashMap(
-      "from" -> "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617",
-      "to" -> "0xd179a76b1d0a91dc8287afc9032cae34f283873d",
-      "gas" -> "0x76c0",
-      "gasPrice" -> "0x9184e72a000",
-      "value" -> "0x9184e72a",
-      "data" -> "0x68656c6c6f"
+    val ethCallObj = EthCallObject(
+      Some("0x1f2e3994505ea24642d94d00a4bcf0159ed1a617"),
+      "0xd179a76b1d0a91dc8287afc9032cae34f283873d",
+      Some("0x76c0"),
+      Some("0x9184e72a000"),
+      Some("0x9184e72a"),
+      Some("0x68656c6c6f")
     )
     val blockNumber  = BlockNumber(1128977)
+
     val block = Service.blockValue(blockNumber)
-    val rq = GenericRequest(method = "eth_call", params = params :: block :: Nil)
+
+    val rq = GenericRequest(method = "eth_call", params = ethCallObj :: block :: Nil)
     val rs = GenericResponse("2.0", 33, None, Some("0x"))
 
-    val response = service(rq, rs).ethCall(
-      Some(params("from")),
-      params("to"),
-      Some(params("gas")),
-      Some(params("gasPrice")),
-      Some(params("value")),
-      Some(params("data")),
-      blockNumber
-    )
+    val response = service(rq, rs).ethCall(ethCallObj, blockNumber)
 
     response.asInstanceOf[EthCall].result shouldBe "0x"
   }

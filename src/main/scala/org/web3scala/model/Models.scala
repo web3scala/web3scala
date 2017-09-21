@@ -7,7 +7,9 @@ import scala.concurrent.Future
 case class GenericRequest(jsonrpc: String = "2.0", method: String, var params: AnyRef = List.empty[String], id: Int = 1)
 case class GenericResponse(jsonrpc: String, id: Int, error: Option[ErrorContent], result: Option[Any])
 
-trait Request
+trait RequestObject
+case class EthCallObject(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
+                         value: Option[String], data: Option[String]) extends RequestObject
 
 trait Response
 case class Web3ClientVersion(jsonrpc: String, id: Int, result: String) extends Response
