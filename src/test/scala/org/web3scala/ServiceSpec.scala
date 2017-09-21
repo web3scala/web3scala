@@ -858,5 +858,42 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     actualResult shouldBe expectedResult
   }
+  it should "create a filter object, based on filter options, to notify when the state changes (logs), when invoking ethNewFilter method" in {
+
+    val fromBlockNumber  = BlockNumber(1682292)
+    val toBlockNumber  = BlockNumber(1692292)
+
+    val ethNewFilterObj = EthNewFilterObject(
+      Some(Service.blockValue(fromBlockNumber)),
+      Some(Service.blockValue(toBlockNumber)),
+      Some("0x1f2e3994505ea24642d94d00a4bcf0159ed1a617"),
+      None
+    )
+
+    val rq = GenericRequest(method = "eth_newFilter", params = ethNewFilterObj :: Nil)
+    val rs = GenericResponse("2.0", 33, None, Some("0x63d9349a00ad6df9a8be212bc89b99ae"))
+
+    val response = service(rq, rs).ethNewFilter(ethNewFilterObj)
+
+    response.asInstanceOf[EthFilter].result shouldBe "0x63d9349a00ad6df9a8be212bc89b99ae"
+  }
+  it should "create a filter in the node, to notify when a new block arrives, when invoking ethNewBlockFilter method" in {
+
+    val rq = GenericRequest(method = "eth_newBlockFilter")
+    val rs = GenericResponse("2.0", 33, None, Some("0xb1daad671143703d05179d4c95400658"))
+
+    val response = service(rq, rs).ethNewBlockFilter
+
+    response.asInstanceOf[EthFilter].result shouldBe "0xb1daad671143703d05179d4c95400658"
+  }
+  it should "create a filter in the node, to notify when new pending transactions arrive, when invoking ethNewPendingTransactionFilter method" in {
+
+    val rq = GenericRequest(method = "eth_newPendingTransactionFilter")
+    val rs = GenericResponse("2.0", 33, None, Some("0x5e3d63e0605fecaf8a69d19a7605e6d1"))
+
+    val response = service(rq, rs).ethNewPendingTransactionFilter
+
+    response.asInstanceOf[EthFilter].result shouldBe "0x5e3d63e0605fecaf8a69d19a7605e6d1"
+  }
 
 }

@@ -14,6 +14,8 @@ case class EthCallObject(from: Option[String], to: String, gas: Option[String], 
                          value: Option[String], data: Option[String]) extends RequestObject
 case class EthEstimateGasObject(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
                                 value: Option[String], data: Option[String]) extends RequestObject
+case class EthNewFilterObject(fromBlock: Option[String], toBlock: Option[String],
+                              address: Option[String], topics: Option[List[_]]) extends RequestObject
 
 
 trait Response
@@ -44,7 +46,7 @@ case class EthEstimatedGas(jsonrpc: String, id: Int, result: Long) extends Respo
 case class EthBlock(jsonrpc: String, id: Int, result: Option[Block]) extends Response
 case class EthTransaction(jsonrpc: String, id: Int, result: Option[Transaction]) extends Response
 case class EthTransactionReceipt(jsonrpc: String, id: Int, result: Option[TransactionReceipt]) extends Response
-
+case class EthFilter(jsonrpc: String, id: Int, result: String) extends Response
 
 
 

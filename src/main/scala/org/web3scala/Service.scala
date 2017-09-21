@@ -358,6 +358,30 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
         }
     }
   }
+  override def ethNewFilter(obj: EthNewFilterObject): Response = {
+    val rq = GenericRequest(method = "eth_newFilter", params = obj :: Nil)
+    val rs = executeSync(rq)
+    rs.error match {
+      case Some(e) => Error(rs.jsonrpc, rs.id, e)
+      case None => EthFilter(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+    }
+  }
+  override def ethNewBlockFilter: Response = {
+    val rq = GenericRequest(method = "eth_newBlockFilter")
+    val rs = executeSync(rq)
+    rs.error match {
+      case Some(e) => Error(rs.jsonrpc, rs.id, e)
+      case None => EthFilter(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+    }
+  }
+  override def ethNewPendingTransactionFilter: Response = {
+    val rq = GenericRequest(method = "eth_newPendingTransactionFilter")
+    val rs = executeSync(rq)
+    rs.error match {
+      case Some(e) => Error(rs.jsonrpc, rs.id, e)
+      case None => EthFilter(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+    }
+  }
 
 
 
@@ -508,6 +532,20 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val rq = GenericRequest(method = "eth_getUncleByBlockNumberAndIndex", params = block :: uncleIndex :: Nil)
     executeAsync(rq)
   }
+  override def asyncEthNewFilter(obj: EthNewFilterObject): AsyncResponse = {
+    val rq = GenericRequest(method = "eth_newFilter", params = obj :: Nil)
+    executeAsync(rq)
+  }
+  override def asyncEthNewBlockFilter: AsyncResponse = {
+    val rq = GenericRequest(method = "eth_newBlockFilter")
+    executeAsync(rq)
+  }
+  override def asyncEthNewPendingTransactionFilter: AsyncResponse = {
+    val rq = GenericRequest(method = "eth_newPendingTransactionFilter")
+    executeAsync(rq)
+  }
+
+
 
 
   import org.web3scala.json.JacksonReaders._

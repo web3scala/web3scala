@@ -259,4 +259,23 @@ trait Ethereum {
     */
   def asyncEthGetUncleByBlockNumberAndIndex(defaultBlock: BlockType, uncleIndex: String): AsyncResponse
 
+  /** Creates a filter object, based on filter options, to notify when the state changes (logs) */
+  def ethNewFilter(obj: EthNewFilterObject): Response
+
+  /** Creates asynchronously a filter object, based on filter options, to notify when the state changes (logs) */
+  def asyncEthNewFilter(obj: EthNewFilterObject): AsyncResponse
+
+  /** Creates a filter in the node, to notify when a new block arrives */
+  def ethNewBlockFilter: Response
+
+  /** Creates asynchronously a filter in the node, to notify when a new block arrives */
+  def asyncEthNewBlockFilter: AsyncResponse
+
+  /** Creates a filter in the node, to notify when new pending transactions arrive */
+  def ethNewPendingTransactionFilter: Response
+
+  /** Creates asynchronously a filter in the node, to notify when new pending transactions arrive */
+  def asyncEthNewPendingTransactionFilter: AsyncResponse
+
+
 }
