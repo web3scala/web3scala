@@ -10,6 +10,8 @@ case class GenericResponse(jsonrpc: String, id: Int, error: Option[ErrorContent]
 trait RequestObject
 case class EthCallObject(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
                          value: Option[String], data: Option[String]) extends RequestObject
+case class EthSendTransactionObject(from: String, to: Option[String], gas: Option[String], gasPrice: Option[String],
+                                    value: Option[String], data: String, nonce: Option[String]) extends RequestObject
 
 trait Response
 case class Web3ClientVersion(jsonrpc: String, id: Int, result: String) extends Response

@@ -170,12 +170,10 @@ trait Ethereum {
 
 
   /** Creates new message call transaction or a contract creation, if the data field contains code */
-  def ethSendTransaction(from: String, to: Option[String], gas: Option[String], gasPrice: Option[String],
-                         value: Option[String], data: String, nonce: Option[String]): Response
+  def ethSendTransaction(obj: EthSendTransactionObject): Response
 
   /** Creates asynchronously new message call transaction or a contract creation, if the data field contains code */
-  def asyncEthSendTransaction(from: String, to: Option[String], gas: Option[String], gasPrice: Option[String],
-                              value: Option[String], data: String, nonce: Option[String]): AsyncResponse
+  def asyncEthSendTransaction(obj: EthSendTransactionObject): AsyncResponse
 
   /** Creates new message call transaction or a contract creation for signed transactions */
   def ethSendRawTransaction(signedTransactionData: String): Response

@@ -393,53 +393,38 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   }
   it should "create new message call transaction or a create a contract, if the data field contains code, when invoking ethSendTransaction method" in {
 
-    val params = HashMap(
-      "from" -> "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617",
-      "to" -> "0xd179a76b1d0a91dc8287afc9032cae34f283873d",
-      "gas" -> "0x76c0",
-      "gasPrice" -> "0x9184e72a000",
-      "value" -> "0x9184e72a",
-      "data" -> "0x68656c6c6f",
-      "nonce" -> ""
+    val ethSendTransactionObj = EthSendTransactionObject(
+      "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617",
+      Some("0xd179a76b1d0a91dc8287afc9032cae34f283873d"),
+      Some("0x76c0"),
+      Some("0x9184e72a000"),
+      Some("0x9184e72a"),
+      "0x68656c6c6f",
+      None
     )
-    val rq = GenericRequest(method = "eth_sendTransaction", params = params)
+
+    val rq = GenericRequest(method = "eth_sendTransaction", params = ethSendTransactionObj)
     val rs = GenericResponse("2.0", 33, None, Some("0x88146924ed5462e0c213b2c1f7d2c4a9f8a3218218a27642b5ea632e465b5a42"))
 
-    val response = service(rq, rs).ethSendTransaction(
-      params("from"),
-      Some(params("to")),
-      Some(params("gas")),
-      Some(params("gasPrice")),
-      Some(params("value")),
-      params("data"),
-      Some(params("nonce"))
-    )
+    val response = service(rq, rs).ethSendTransaction(ethSendTransactionObj)
 
     response.asInstanceOf[EthSendTransaction].result shouldBe "0x88146924ed5462e0c213b2c1f7d2c4a9f8a3218218a27642b5ea632e465b5a42"
   }
   it should "return Error object, when invoking ethSendTransaction method with locked account" in {
 
-    val params = HashMap(
-      "from" -> "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617",
-      "to" -> "0xd179a76b1d0a91dc8287afc9032cae34f283873d",
-      "gas" -> "0x76c0",
-      "gasPrice" -> "0x9184e72a000",
-      "value" -> "0x9184e72a",
-      "data" -> "0x68656c6c6f",
-      "nonce" -> ""
+    val ethSendTransactionObj = EthSendTransactionObject(
+      "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617",
+      Some("0xd179a76b1d0a91dc8287afc9032cae34f283873d"),
+      Some("0x76c0"),
+      Some("0x9184e72a000"),
+      Some("0x9184e72a"),
+      "0x68656c6c6f",
+      None
     )
-    val rq = GenericRequest(method = "eth_sendTransaction", params = params)
+    val rq = GenericRequest(method = "eth_sendTransaction", params = ethSendTransactionObj)
     val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "authentication needed: password or unlock")), Some(AnyRef))
 
-    val response = service(rq, rs).ethSendTransaction(
-      params("from"),
-      Some(params("to")),
-      Some(params("gas")),
-      Some(params("gasPrice")),
-      Some(params("value")),
-      params("data"),
-      Some(params("nonce"))
-    )
+    val response = service(rq, rs).ethSendTransaction(ethSendTransactionObj)
 
     response.asInstanceOf[Error].error shouldBe a [ErrorContent]
     response.asInstanceOf[Error].error.code shouldBe -32000

@@ -204,18 +204,8 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
       case None => EthSign(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
     }
   }
-  override def ethSendTransaction(from: String, to: Option[String], gas: Option[String], gasPrice: Option[String],
-                                  value: Option[String], data: String, nonce: Option[String]): Response = {
-    val params = HashMap(
-      "from" -> from,
-      "to" -> to,
-      "gas" -> gas,
-      "gasPrice" -> gasPrice,
-      "value" -> value,
-      "data" -> data,
-      "nonce" -> nonce
-    )
-    val rq = GenericRequest(method = "eth_sendTransaction", params = params :: Nil)
+  override def ethSendTransaction(obj: EthSendTransactionObject): Response = {
+    val rq = GenericRequest(method = "eth_sendTransaction", params = obj :: Nil)
     val rs = executeSync(rq)
     rs.error match {
       case Some(e) => Error(rs.jsonrpc, rs.id, e)
@@ -475,19 +465,8 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val rq = GenericRequest(method = "eth_sign", params = address :: message :: Nil)
     executeAsync(rq)
   }
-  override def asyncEthSendTransaction(from: String, to: Option[String], gas: Option[String],
-                                       gasPrice: Option[String], value: Option[String], data: String,
-                                       nonce: Option[String]): AsyncResponse = {
-    val params = HashMap(
-      "from" -> from,
-      "to" -> to,
-      "gas" -> gas,
-      "gasPrice" -> gasPrice,
-      "value" -> value,
-      "data" -> data,
-      "nonce" -> nonce
-    )
-    val rq = GenericRequest(method = "eth_sendTransaction", params = params :: Nil)
+  override def asyncEthSendTransaction(obj: EthSendTransactionObject): AsyncResponse = {
+    val rq = GenericRequest(method = "eth_sendTransaction", params = obj :: Nil)
     executeAsync(rq)
   }
   override def asyncEthSendRawTransaction(data: String): AsyncResponse = {
