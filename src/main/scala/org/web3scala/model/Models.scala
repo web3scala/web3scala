@@ -36,9 +36,9 @@ case class EthSign(jsonrpc: String, id: Int, result: String) extends Response
 case class EthSendTransaction(jsonrpc: String, id: Int, result: String) extends Response
 case class EthCall(jsonrpc: String, id: Int, result: String) extends Response
 case class EthEstimatedGas(jsonrpc: String, id: Int, result: Long) extends Response
-case class EthBlockObject(jsonrpc: String, id: Int, result: Option[Block]) extends Response
-case class EthTransactionObject(jsonrpc: String, id: Int, result: Option[Transaction]) extends Response
-case class EthTransactionReceiptObject(jsonrpc: String, id: Int, result: Option[TransactionReceipt]) extends Response
+case class EthBlock(jsonrpc: String, id: Int, result: Option[Block]) extends Response
+case class EthTransaction(jsonrpc: String, id: Int, result: Option[Transaction]) extends Response
+case class EthTransactionReceipt(jsonrpc: String, id: Int, result: Option[TransactionReceipt]) extends Response
 
 
 

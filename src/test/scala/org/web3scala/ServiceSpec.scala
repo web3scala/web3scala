@@ -585,7 +585,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetBlockByHash(blockHash, fullTransactionObjects)
 
-    val actualResult = response.asInstanceOf[EthBlockObject].result.get.asInstanceOf[BlockWithTransactions].nonce
+    val actualResult = response.asInstanceOf[EthBlock].result.get.asInstanceOf[BlockWithTransactions].nonce
     val expectedResult = Utils.hex2long(rsData("nonce").toString)
 
     actualResult shouldBe expectedResult
@@ -661,7 +661,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetBlockByNumber(blockNumber, fullTransactionObjects)
 
-    val actualResult = response.asInstanceOf[EthBlockObject].result.get.asInstanceOf[BlockWithTransactions].nonce
+    val actualResult = response.asInstanceOf[EthBlock].result.get.asInstanceOf[BlockWithTransactions].nonce
     val expectedResult = Utils.hex2long(rsData("nonce").toString)
 
     actualResult shouldBe expectedResult
@@ -689,7 +689,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetTransactionByHash(transactionHash)
 
-    val actualResult = response.asInstanceOf[EthTransactionObject].result.get.nonce
+    val actualResult = response.asInstanceOf[EthTransaction].result.get.nonce
     val expectedResult = Utils.hex2long(rsData("nonce"))
 
     actualResult shouldBe expectedResult
@@ -719,7 +719,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetTransactionByBlockHashAndIndex(blockHash, transactionIndex)
 
-    val actualResult = response.asInstanceOf[EthTransactionObject].result.get.nonce
+    val actualResult = response.asInstanceOf[EthTransaction].result.get.nonce
     val expectedResult = Utils.hex2long(rsData("nonce"))
 
     actualResult shouldBe expectedResult
@@ -750,7 +750,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetTransactionByBlockNumberAndIndex(blockNumber, transactionIndex)
 
-    val actualResult = response.asInstanceOf[EthTransactionObject].result.get.nonce
+    val actualResult = response.asInstanceOf[EthTransaction].result.get.nonce
     val expectedResult = Utils.hex2long(rsData("nonce"))
 
     actualResult shouldBe expectedResult
@@ -794,7 +794,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetTransactionReceipt(transactionHash)
 
-    val actualResult = response.asInstanceOf[EthTransactionReceiptObject].result.get.gasUsed
+    val actualResult = response.asInstanceOf[EthTransactionReceipt].result.get.gasUsed
     val expectedResult = Utils.hex2long(rsData("gasUsed").toString)
 
     actualResult shouldBe expectedResult
@@ -834,7 +834,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetUncleByBlockHashAndIndex(blockHash, uncleIndex)
 
-    val actualResult = response.asInstanceOf[EthBlockObject].result.get.asInstanceOf[BlockWithoutTransactions].nonce
+    val actualResult = response.asInstanceOf[EthBlock].result.get.asInstanceOf[BlockWithoutTransactions].nonce
     val expectedResult = Utils.hex2bigint(rsData("nonce").toString)
 
     actualResult shouldBe expectedResult
@@ -874,7 +874,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetUncleByBlockNumberAndIndex(blockNumber, uncleIndex)
 
-    val actualResult = response.asInstanceOf[EthBlockObject].result.get.asInstanceOf[BlockWithoutTransactions].nonce
+    val actualResult = response.asInstanceOf[EthBlock].result.get.asInstanceOf[BlockWithoutTransactions].nonce
     val expectedResult = Utils.hex2bigint(rsData("nonce").toString)
 
     actualResult shouldBe expectedResult

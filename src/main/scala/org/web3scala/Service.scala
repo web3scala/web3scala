@@ -267,7 +267,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
           Extraction.decompose(rs.result.get).as[BlockWithTransactions]
         else
           Extraction.decompose(rs.result.get).as[BlockWithoutTransactions]
-        EthBlockObject(rs.jsonrpc, rs.id, Some(block))
+        EthBlock(rs.jsonrpc, rs.id, Some(block))
     }
   }
   override def ethGetBlockByNumber(defaultBlock: BlockType, fullTransactionObjects: Boolean): Response = {
@@ -282,7 +282,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
           Extraction.decompose(rs.result.get).as[BlockWithTransactions]
         else
           Extraction.decompose(rs.result.get).as[BlockWithoutTransactions]
-        EthBlockObject(rs.jsonrpc, rs.id, Some(block))
+        EthBlock(rs.jsonrpc, rs.id, Some(block))
     }
   }
   override def ethGetTransactionByHash(transactionHash: String): Response = {
@@ -295,8 +295,8 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
           case Some(result) =>
             import org.web3scala.json.JacksonReaders._
             val transaction = Extraction.decompose(result).as[Transaction]
-            EthTransactionObject(rs.jsonrpc, rs.id, Some(transaction))
-          case None => EthTransactionObject(rs.jsonrpc, rs.id, None)
+            EthTransaction(rs.jsonrpc, rs.id, Some(transaction))
+          case None => EthTransaction(rs.jsonrpc, rs.id, None)
         }
     }
   }
@@ -310,8 +310,8 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
           case Some(result) =>
             import org.web3scala.json.JacksonReaders._
             val transaction = Extraction.decompose(result).as[Transaction]
-            EthTransactionObject(rs.jsonrpc, rs.id, Some(transaction))
-          case None => EthTransactionObject(rs.jsonrpc, rs.id, None)
+            EthTransaction(rs.jsonrpc, rs.id, Some(transaction))
+          case None => EthTransaction(rs.jsonrpc, rs.id, None)
         }
     }
   }
@@ -326,8 +326,8 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
           case Some(result) =>
             import org.web3scala.json.JacksonReaders._
             val transaction = Extraction.decompose(result).as[Transaction]
-            EthTransactionObject(rs.jsonrpc, rs.id, Some(transaction))
-          case None => EthTransactionObject(rs.jsonrpc, rs.id, None)
+            EthTransaction(rs.jsonrpc, rs.id, Some(transaction))
+          case None => EthTransaction(rs.jsonrpc, rs.id, None)
         }
     }
   }
@@ -341,8 +341,8 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
           case Some(result) =>
             import org.web3scala.json.JacksonReaders._
             val transactionReceipt = Extraction.decompose(result).as[TransactionReceipt]
-            EthTransactionReceiptObject(rs.jsonrpc, rs.id, Some(transactionReceipt))
-          case None => EthTransactionReceiptObject(rs.jsonrpc, rs.id, None)
+            EthTransactionReceipt(rs.jsonrpc, rs.id, Some(transactionReceipt))
+          case None => EthTransactionReceipt(rs.jsonrpc, rs.id, None)
         }
     }
   }
@@ -356,8 +356,8 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
           case Some(result) =>
             import org.web3scala.json.JacksonReaders._
             val block = Extraction.decompose(result).as[BlockWithoutTransactions]
-            EthBlockObject(rs.jsonrpc, rs.id, Some(block))
-          case None => EthBlockObject(rs.jsonrpc, rs.id, None)
+            EthBlock(rs.jsonrpc, rs.id, Some(block))
+          case None => EthBlock(rs.jsonrpc, rs.id, None)
         }
     }
   }
@@ -372,8 +372,8 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
           case Some(result) =>
             import org.web3scala.json.JacksonReaders._
             val block = Extraction.decompose(result).as[BlockWithoutTransactions]
-            EthBlockObject(rs.jsonrpc, rs.id, Some(block))
-          case None => EthBlockObject(rs.jsonrpc, rs.id, None)
+            EthBlock(rs.jsonrpc, rs.id, Some(block))
+          case None => EthBlock(rs.jsonrpc, rs.id, None)
         }
     }
   }
