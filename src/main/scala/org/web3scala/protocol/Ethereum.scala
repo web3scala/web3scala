@@ -191,15 +191,13 @@ trait Ethereum {
     * Makes a call or transaction, which won't be added to the blockchain and returns the used gas, which
     * can be used for estimating the used gas
     */
-  def ethEstimateGas(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
-                     value: Option[String], data: Option[String]): Response
+  def ethEstimateGas(obj: EthEstimateGasObject): Response
 
   /**
     * Makes an asynchronous call or transaction, which won't be added to the blockchain and returns the used
     * gas, which can be used for estimating the used gas
     */
-  def asyncEthEstimateGas(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
-                          value: Option[String], data: Option[String]): AsyncResponse
+  def asyncEthEstimateGas(obj: EthEstimateGasObject): AsyncResponse
 
   /** Returns information about a block by hash */
   def ethGetBlockByHash(blockHash: String, fullTransactionObjects: Boolean): Response

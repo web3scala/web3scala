@@ -229,17 +229,8 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
       case None => EthCall(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
     }
   }
-  override def ethEstimateGas(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
-                              value: Option[String], data: Option[String]): Response = {
-    val params = HashMap(
-      "from" -> from,
-      "to" -> to,
-      "gas" -> gas,
-      "gasPrice" -> gasPrice,
-      "value" -> value,
-      "data" -> data
-    )
-    val rq = GenericRequest(method = "eth_estimateGas", params = params :: Nil)
+  override def ethEstimateGas(obj: EthEstimateGasObject): Response = {
+    val rq = GenericRequest(method = "eth_estimateGas", params = obj :: Nil)
     val rs = executeSync(rq)
     rs.error match {
       case Some(e) => Error(rs.jsonrpc, rs.id, e)
@@ -478,17 +469,8 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val rq = GenericRequest(method = "eth_call", params = obj :: block :: Nil)
     executeAsync(rq)
   }
-  override def asyncEthEstimateGas(from: Option[String], to: String, gas: Option[String], gasPrice: Option[String],
-                                   value: Option[String], data: Option[String]): AsyncResponse = {
-    val params = HashMap(
-      "from" -> from,
-      "to" -> to,
-      "gas" -> gas,
-      "gasPrice" -> gasPrice,
-      "value" -> value,
-      "data" -> data
-    )
-    val rq = GenericRequest(method = "eth_estimateGas", params = params :: Nil)
+  override def asyncEthEstimateGas(obj: EthEstimateGasObject): AsyncResponse = {
+    val rq = GenericRequest(method = "eth_estimateGas", params = obj :: Nil)
     executeAsync(rq)
   }
   override def asyncEthGetBlockByHash(blockHash: String, fullTransactionObjects: Boolean): AsyncResponse = {

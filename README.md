@@ -27,7 +27,7 @@ work of Ethereum nodes.
   // synchronous call
   service.web3ClientVersion match {
     case s: Web3ClientVersion => println("Client Version: " + s.result)
-    case e: Error => println("Client Version: " + e.error)
+    case e: Error => println("Error: " + e.error)
   }
 
   // asynchronous call

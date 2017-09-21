@@ -478,25 +478,19 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
   it should "make a call or transaction, which won't be added to the blockchain and return the used gas, which " +
     "can be used for estimating the used gas, when invoking ethEstimateGas method" in {
 
-    val params = HashMap(
-      "from" -> "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617",
-      "to" -> "0xd179a76b1d0a91dc8287afc9032cae34f283873d",
-      "gas" -> "0x76c0",
-      "gasPrice" -> "0x9184e72a000",
-      "value" -> "0x9184e72a",
-      "data" -> "0x68656c6c6f"
+    val ethEstimateGasObj = EthEstimateGasObject(
+      Some("0x1f2e3994505ea24642d94d00a4bcf0159ed1a617"),
+      "0xd179a76b1d0a91dc8287afc9032cae34f283873d",
+      Some("0x76c0"),
+      Some("0x9184e72a000"),
+      Some("0x9184e72a"),
+      Some("0x68656c6c6f")
     )
-    val rq = GenericRequest(method = "eth_call", params = params :: Nil)
+
+    val rq = GenericRequest(method = "eth_call", params = ethEstimateGasObj :: Nil)
     val rs = GenericResponse("2.0", 33, None, Some("0x535D"))
 
-    val response = service(rq, rs).ethEstimateGas(
-      Some(params("from")),
-      params("to"),
-      Some(params("gas")),
-      Some(params("gasPrice")),
-      Some(params("value")),
-      Some(params("data"))
-    )
+    val response = service(rq, rs).ethEstimateGas(ethEstimateGasObj)
 
     response.asInstanceOf[EthEstimatedGas].result shouldBe 21341
   }
