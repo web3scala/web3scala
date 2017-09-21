@@ -382,9 +382,55 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
       case None => EthFilter(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
     }
   }
+  override def ethUninstallFilter(id: String): Response = {
+    val rq = GenericRequest(method = "eth_uninstallFilter", params = id :: Nil)
+    val rs = executeSync(rq)
+    rs.error match {
+      case Some(e) => Error(rs.jsonrpc, rs.id, e)
+      case None => EthUninstallFilter(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[Boolean])
+    }
+  }
+  override def ethGetFilterChanges(id: String): Response = {
+    val rq = GenericRequest(method = "eth_getFilterChanges", params = id :: Nil)
+    val rs = executeSync(rq)
+    rs.error match {
+      case Some(e) => Error(rs.jsonrpc, rs.id, e)
+      case None => processGetFilterLogsResponse(rs)
+    }
+  }
+  override def ethGetFilterLogs(id: String): Response = {
+    val rq = GenericRequest(method = "eth_getFilterLogs", params = id :: Nil)
+    val rs = executeSync(rq)
+    rs.error match {
+      case Some(e) => Error(rs.jsonrpc, rs.id, e)
+      case None => processGetFilterLogsResponse(rs)
+    }
+  }
+  override def ethGetLogs(obj: EthNewFilterObject): Response = {
+    val rq = GenericRequest(method = "eth_getLogs", params = obj :: Nil)
+    val rs = executeSync(rq)
+    rs.error match {
+      case Some(e) => Error(rs.jsonrpc, rs.id, e)
+      case None => processGetFilterLogsResponse(rs)
+    }
+  }
 
 
-
+  private def processGetFilterLogsResponse(rs: GenericResponse): EthFilterLogs = {
+    val result = rs.result.get.asInstanceOf[List[_]]
+    if (result.isEmpty) {
+      EthFilterLogs(rs.jsonrpc, rs.id, result)
+    } else {
+      result.head match {
+        case m: HashMap[_, _] =>
+          import org.web3scala.json.JacksonReaders._
+          val logs = Extraction.decompose(rs.result.get).as[FilterLogs]
+          EthFilterLogs(rs.jsonrpc, rs.id, logs.logs)
+        case s: String =>
+          EthFilterLogs(rs.jsonrpc, rs.id, result)
+      }
+    }
+  }
 
   override def asyncWeb3ClientVersion: AsyncResponse = {
     val rq = GenericRequest(method = "web3_clientVersion")
@@ -542,6 +588,22 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
   }
   override def asyncEthNewPendingTransactionFilter: AsyncResponse = {
     val rq = GenericRequest(method = "eth_newPendingTransactionFilter")
+    executeAsync(rq)
+  }
+  override def asyncEthUninstallFilter(id: String): AsyncResponse = {
+    val rq = GenericRequest(method = "eth_uninstallFilter", params = id :: Nil)
+    executeAsync(rq)
+  }
+  override def asyncEthGetFilterChanges(id: String): AsyncResponse = {
+    val rq = GenericRequest(method = "eth_getFilterChanges", params = id :: Nil)
+    executeAsync(rq)
+  }
+  override def asyncEthGetFilterLogs(id: String): AsyncResponse = {
+    val rq = GenericRequest(method = "eth_getFilterLogs", params = id :: Nil)
+    executeAsync(rq)
+  }
+  override def asyncEthGetLogs(obj: EthNewFilterObject): AsyncResponse = {
+    val rq = GenericRequest(method = "eth_getLogs", params = obj :: Nil)
     executeAsync(rq)
   }
 

@@ -866,7 +866,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val ethNewFilterObj = EthNewFilterObject(
       Some(Service.blockValue(fromBlockNumber)),
       Some(Service.blockValue(toBlockNumber)),
-      Some("0x1f2e3994505ea24642d94d00a4bcf0159ed1a617"),
+      None,
       None
     )
 
@@ -876,6 +876,27 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val response = service(rq, rs).ethNewFilter(ethNewFilterObj)
 
     response.asInstanceOf[EthFilter].result shouldBe "0x63d9349a00ad6df9a8be212bc89b99ae"
+  }
+  it should "return Error object, when invoking ethNewFilter method with invalid block combination" in {
+
+    val fromBlockName  = BlockName("latest")
+    val toBlockName  = BlockName("earliest")
+
+    val ethNewFilterObj = EthNewFilterObject(
+      Some(Service.blockValue(fromBlockName)),
+      Some(Service.blockValue(toBlockName)),
+      None,
+      None
+    )
+
+    val rq = GenericRequest(method = "eth_newFilter", params = ethNewFilterObj :: Nil)
+    val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "invalid from and to block combination: from > to")), Some(AnyRef))
+
+    val response = service(rq, rs).ethNewFilter(ethNewFilterObj)
+
+    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
+    response.asInstanceOf[Error].error.code shouldBe -32000
+    response.asInstanceOf[Error].error.message shouldBe "invalid from and to block combination: from > to"
   }
   it should "create a filter in the node, to notify when a new block arrives, when invoking ethNewBlockFilter method" in {
 
@@ -894,6 +915,169 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     val response = service(rq, rs).ethNewPendingTransactionFilter
 
     response.asInstanceOf[EthFilter].result shouldBe "0x5e3d63e0605fecaf8a69d19a7605e6d1"
+  }
+  it should "uninstall a filter with given id, when invoking ethUninstallFilter method" in {
+
+    val filterId = "0x8580b3b2433221f0c4459506552e95d4"
+
+    val rq = GenericRequest(method = "eth_uninstallFilter", params = filterId :: Nil)
+    val rs = GenericResponse("2.0", 33, None, Some(true))
+
+    val response = service(rq, rs).ethUninstallFilter(filterId)
+
+    response.asInstanceOf[EthUninstallFilter].result shouldBe true
+  }
+  it should "return Error object, when invoking ethGetFilterChanges method with unknown filter id" in {
+
+    val filterId = "0x8580b3b2433221f0c4459506552e95d4"
+
+    val rq = GenericRequest(method = "eth_getFilterChanges", params = filterId :: Nil)
+    val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "filter not found")), Some(AnyRef))
+
+    val response = service(rq, rs).ethGetFilterChanges(filterId)
+
+    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
+    response.asInstanceOf[Error].error.code shouldBe -32000
+    response.asInstanceOf[Error].error.message shouldBe "filter not found"
+  }
+  it should "return an array of logs (Strings) which occurred since last poll, when invoking ethGetFilterChanges " +
+    "method with known Block or PendingTransaction filter id" in {
+
+    val filterId = "0x8580b3b2433221f0c4459506552e95d4"
+
+    val rsData = List(
+      "0xc9990dc37f0fba08c03573fdaf0d5d1f9929a9929a89574c4578f0a2d4c74097",
+      "0x24477c74be4f8fac5262d4ab7e29d945239e1744c2e1074e70c0823ee081f80b",
+      "0x6c648c44588669cb2da89def6b621c845a6d9510485a663152369b124bd7103e",
+      "0xb53260ad68f5bc7b3a2f586b873c9feaa789ff17a99b109c33fc3b9e86e475bc",
+      "0x9082b963faa318914e27e43d6d4453bbbcb173ae3e19993dfb3abc79b3aa167c"
+    )
+
+    val rq = GenericRequest(method = "eth_getFilterChanges", params = filterId :: Nil)
+    val rs = GenericResponse("2.0", 33, None, Some(rsData))
+
+    val response = service(rq, rs).ethGetFilterChanges(filterId)
+
+    response.asInstanceOf[EthFilterLogs].result shouldBe rsData
+  }
+  it should "return an array of logs (Objects) which occurred since last poll, when invoking ethGetFilterChanges " +
+    "method with known filter id" in {
+
+    val filterId = "0x8580b3b2433221f0c4459506552e95d4"
+
+    val rsData = List(
+      HashMap(
+        "removed" -> false,
+        "logIndex" -> "0x0",
+        "transactionIndex" -> "0x0",
+        "transactionHash" -> "0x5905362771b082cdd95674c3e76c8c8cb8909d982b84896e04d96fbd66a62e0d",
+        "blockHash" -> "0x01c53f05a6e8a3bf0d97a4ff34ebe7c734cd661b17271b59c469a50e7a5b72b5",
+        "blockNumber" -> "0x1A0528",
+        "address" -> "0x27c07e5815657279c2acd57e568034fe3b2e7588",
+        "data" -> "0x0000000000000000000000000000000000000000000000a441b2725f39980000",
+        "topics" -> List(
+          "0x9386c90217c323f58030f9dadcbc938f807a940f4ff41cd4cead9562f5da7dc3"
+        )
+      ),
+      HashMap(
+        "removed" -> false,
+        "logIndex" -> "0x1",
+        "transactionIndex" -> "0x0",
+        "transactionHash" -> "0x5905362771b082cdd95674c3e76c8c8cb8909d982b84896e04d96fbd66a62e0d",
+        "blockHash" -> "0x01c53f05a6e8a3bf0d97a4ff34ebe7c734cd661b17271b59c469a50e7a5b72b5",
+        "blockNumber" -> "0x1A0528",
+        "address" -> "0x27c07e5815657279c2acd57e568034fe3b2e7588",
+        "data" -> "0x0000000000000000000000000000000000000000000000a441b2725f39980000",
+        "topics" -> List(
+          "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+          "0x00000000000000000000000027c07e5815657279c2acd57e568034fe3b2e7588",
+          "0x000000000000000000000000009ba084d72b44b2e069518f2d41dfad76c463fe"
+        )
+      ),
+    )
+
+    val rq = GenericRequest(method = "eth_getFilterChanges", params = filterId :: Nil)
+    val rs = GenericResponse("2.0", 33, None, Some(rsData))
+
+    val response = service(rq, rs).ethGetFilterChanges(filterId)
+
+    val actualResult = response.asInstanceOf[EthFilterLogs].result.asInstanceOf[List[FilterLog]].head.logIndex
+    val expectedResult = Utils.hex2int(rsData.head("logIndex").toString)
+
+    actualResult shouldBe expectedResult
+  }
+  it should "return an array of all logs (Strings) matching filter with given id, when invoking ethGetFilterLogs method " +
+    "with known Block or PendingTransaction filter id" in {
+
+    val filterId = "0x8580b3b2433221f0c4459506552e95d4"
+
+    val rsData = List(
+      "0xc9990dc37f0fba08c03573fdaf0d5d1f9929a9929a89574c4578f0a2d4c74097",
+      "0x24477c74be4f8fac5262d4ab7e29d945239e1744c2e1074e70c0823ee081f80b",
+      "0x6c648c44588669cb2da89def6b621c845a6d9510485a663152369b124bd7103e",
+      "0xb53260ad68f5bc7b3a2f586b873c9feaa789ff17a99b109c33fc3b9e86e475bc",
+      "0x9082b963faa318914e27e43d6d4453bbbcb173ae3e19993dfb3abc79b3aa167c"
+    )
+
+    val rq = GenericRequest(method = "eth_getFilterLogs", params = filterId :: Nil)
+    val rs = GenericResponse("2.0", 33, None, Some(rsData))
+
+    val response = service(rq, rs).ethGetFilterLogs(filterId)
+
+    response.asInstanceOf[EthFilterLogs].result shouldBe rsData
+  }
+  it should "return an array of all logs (Objects) matching a given filter object, when invoking ethGetLogs method" in {
+
+    val fromBlockNumber  = BlockNumber(1705455)
+    val toBlockName  = BlockName("latest")
+
+    val ethNewFilterObj = EthNewFilterObject(
+      Some(Service.blockValue(fromBlockNumber)),
+      Some(Service.blockValue(toBlockName)),
+      None,
+      None
+    )
+
+    val rsData = List(
+      HashMap(
+        "removed" -> false,
+        "logIndex" -> "0x0",
+        "transactionIndex" -> "0x0",
+        "transactionHash" -> "0x5905362771b082cdd95674c3e76c8c8cb8909d982b84896e04d96fbd66a62e0d",
+        "blockHash" -> "0x01c53f05a6e8a3bf0d97a4ff34ebe7c734cd661b17271b59c469a50e7a5b72b5",
+        "blockNumber" -> "0x1A0528",
+        "address" -> "0x27c07e5815657279c2acd57e568034fe3b2e7588",
+        "data" -> "0x0000000000000000000000000000000000000000000000a441b2725f39980000",
+        "topics" -> List(
+          "0x9386c90217c323f58030f9dadcbc938f807a940f4ff41cd4cead9562f5da7dc3"
+        )
+      ),
+      HashMap(
+        "removed" -> false,
+        "logIndex" -> "0x1",
+        "transactionIndex" -> "0x0",
+        "transactionHash" -> "0x5905362771b082cdd95674c3e76c8c8cb8909d982b84896e04d96fbd66a62e0d",
+        "blockHash" -> "0x01c53f05a6e8a3bf0d97a4ff34ebe7c734cd661b17271b59c469a50e7a5b72b5",
+        "blockNumber" -> "0x1A0528",
+        "address" -> "0x27c07e5815657279c2acd57e568034fe3b2e7588",
+        "data" -> "0x0000000000000000000000000000000000000000000000a441b2725f39980000",
+        "topics" -> List(
+          "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+          "0x00000000000000000000000027c07e5815657279c2acd57e568034fe3b2e7588",
+          "0x000000000000000000000000009ba084d72b44b2e069518f2d41dfad76c463fe"
+        )
+      ),
+    )
+
+    val rq = GenericRequest(method = "eth_getLogs", params = ethNewFilterObj :: Nil)
+    val rs = GenericResponse("2.0", 33, None, Some(rsData))
+
+    val response = service(rq, rs).ethGetLogs(ethNewFilterObj)
+
+    val actualResult = response.asInstanceOf[EthFilterLogs].result.asInstanceOf[List[FilterLog]].head.logIndex
+    val expectedResult = Utils.hex2int(rsData.head("logIndex").toString)
+
+    actualResult shouldBe expectedResult
   }
 
 }

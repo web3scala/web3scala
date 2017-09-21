@@ -277,5 +277,29 @@ trait Ethereum {
   /** Creates asynchronously a filter in the node, to notify when new pending transactions arrive */
   def asyncEthNewPendingTransactionFilter: AsyncResponse
 
+  /** Uninstalls a filter with given id. Should always be called when watch is no longer needed */
+  def ethUninstallFilter(id: String): Response
+
+  /** Uninstalls asynchronously a filter with given id. Should always be called when watch is no longer needed */
+  def asyncEthUninstallFilter(id: String): AsyncResponse
+
+  /** Polling method for a filter, which returns an array of logs which occurred since last poll */
+  def ethGetFilterChanges(id: String): Response
+
+  /** Asynchronous polling method for a filter, which returns an array of logs which occurred since last poll */
+  def asyncEthGetFilterChanges(id: String): AsyncResponse
+
+  /** Returns an array of all logs matching filter with given id */
+  def ethGetFilterLogs(id: String): Response
+
+  /** Returns asynchronously an array of all logs matching filter with given id */
+  def asyncEthGetFilterLogs(id: String): AsyncResponse
+
+  /** Returns an array of all logs matching a given filter object */
+  def ethGetLogs(obj: EthNewFilterObject): Response
+
+  /** Returns asynchronously an array of all logs matching a given filter object */
+  def asyncEthGetLogs(obj: EthNewFilterObject): AsyncResponse
+
 
 }

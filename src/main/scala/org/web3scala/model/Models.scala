@@ -47,7 +47,8 @@ case class EthBlock(jsonrpc: String, id: Int, result: Option[Block]) extends Res
 case class EthTransaction(jsonrpc: String, id: Int, result: Option[Transaction]) extends Response
 case class EthTransactionReceipt(jsonrpc: String, id: Int, result: Option[TransactionReceipt]) extends Response
 case class EthFilter(jsonrpc: String, id: Int, result: String) extends Response
-
+case class EthUninstallFilter(jsonrpc: String, id: Int, result: Boolean) extends Response
+case class EthFilterLogs(jsonrpc: String, id: Int, result: List[_]) extends Response
 
 
 case class AsyncResponse(future: Future[JValue]) extends Response
@@ -56,6 +57,9 @@ case class Error(jsonrpc: String, id: Int, error: ErrorContent) extends Response
 case class ErrorContent(code: Int, message: String) {
   override def toString: String = s"Error/code=$code/message=$message]"
 }
+
+
+case class FilterLogs(logs: List[FilterLog])
 
 case class FilterLog(removed: Boolean, logIndex: Int, transactionIndex: Int, transactionHash: String,
                      blockHash: String, blockNumber: Long, address: String, data: String, topics: List[String])

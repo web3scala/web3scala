@@ -130,4 +130,9 @@ object JacksonReaders {
       (json \ "topics").extract[List[String]]
     )
   }
+  implicit object FilterLogsReader extends Reader[FilterLogs] {
+    def read(json: JValue): FilterLogs = FilterLogs(
+      json.children.map(x => x.as[FilterLog](FilterLogReader, manifest[FilterLog]))
+    )
+  }
 }
