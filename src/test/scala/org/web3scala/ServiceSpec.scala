@@ -415,7 +415,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
       Some(params("nonce"))
     )
 
-    response.asInstanceOf[EthTransactionHash].result shouldBe "0x88146924ed5462e0c213b2c1f7d2c4a9f8a3218218a27642b5ea632e465b5a42"
+    response.asInstanceOf[EthSendTransaction].result shouldBe "0x88146924ed5462e0c213b2c1f7d2c4a9f8a3218218a27642b5ea632e465b5a42"
   }
   it should "return Error object, when invoking ethSendTransaction method with locked account" in {
 
@@ -454,7 +454,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethSendRawTransaction(signedTransactionData)
 
-    response.asInstanceOf[EthTransactionHash].result shouldBe "0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331"
+    response.asInstanceOf[EthSendTransaction].result shouldBe "0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331"
   }
   it should "return Error object, when invoking ethSendRawTransaction method with element larger than containing list" in {
 

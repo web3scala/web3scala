@@ -33,7 +33,7 @@ case class EthBlockTransactionCount(jsonrpc: String, id: Int, result: Long) exte
 case class EthUncleCount(jsonrpc: String, id: Int, result: Long) extends Response
 case class EthCode(jsonrpc: String, id: Int, result: String) extends Response
 case class EthSign(jsonrpc: String, id: Int, result: String) extends Response
-case class EthTransactionHash(jsonrpc: String, id: Int, result: String) extends Response
+case class EthSendTransaction(jsonrpc: String, id: Int, result: String) extends Response
 case class EthCall(jsonrpc: String, id: Int, result: String) extends Response
 case class EthEstimatedGas(jsonrpc: String, id: Int, result: Long) extends Response
 case class EthBlockObject(jsonrpc: String, id: Int, result: Option[Block]) extends Response

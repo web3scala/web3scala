@@ -219,7 +219,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val rs = executeSync(rq)
     rs.error match {
       case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthTransactionHash(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+      case None => EthSendTransaction(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
     }
   }
   override def ethSendRawTransaction(signedTransactionData: String): Response = {
@@ -227,7 +227,7 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val rs = executeSync(rq)
     rs.error match {
       case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthTransactionHash(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+      case None => EthSendTransaction(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
     }
   }
   override def ethCall(obj: EthCallObject, defaultBlock: BlockType): Response = {
