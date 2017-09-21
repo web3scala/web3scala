@@ -4,12 +4,12 @@ import org.json4s.JsonAST.JValue
 import scala.collection.immutable.HashMap
 import scala.concurrent.Future
 
+case class GenericRequest(jsonrpc: String = "2.0", method: String, var params: AnyRef = List.empty[String], id: Int = 1)
+case class GenericResponse(jsonrpc: String, id: Int, error: Option[ErrorContent], result: Option[Any])
+
 trait Request
-case class GenericRequest(jsonrpc: String = "2.0", method: String,
-                          var params: AnyRef = List.empty[String], id: Int = 1)
 
 trait Response
-case class GenericResponse(jsonrpc: String, id: Int, error: Option[ErrorContent], result: Option[Any]) extends Response
 case class Web3ClientVersion(jsonrpc: String, id: Int, result: String) extends Response
 case class Web3Sha3(jsonrpc: String, id: Int, result: String) extends Response
 case class NetVersion(jsonrpc: String, id: Int, result: Int) extends Response
