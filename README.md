@@ -28,18 +28,18 @@ work of Ethereum nodes.
 ```scala
   val service = new Service
   
-  // synchronous call
+  // synchronous call (returns Either[Error, Response])
   service.web3ClientVersion match {
-    case s: Web3ClientVersion => println("Client Version: " + s.result)
-    case e: Error => println("Error: " + e.error)
+    case Left(e) => println("Error: " + e.error)
+    case Right(s) => println("Client Version: " + s.result)
   }
 
-  // asynchronous call
+  // asynchronous call (returns a future wrapped in AsyncResponse)
   val future = service.asyncWeb3ClientVersion.future
   val response = future().as[GenericResponse]
-  response.error match {
-    case Some(e) => println(e)
-    case None => println(response.result)
+  response.result match {
+    case Some(s) => println(s)
+    case None => println(response.error)
   }
 ```
 
@@ -53,7 +53,7 @@ Assuming you have three Ethereum wallets:
   val rq3 = ("0x902c4fD71e196E86e7C82126Ff88ADa63a590d22", BlockNumber(1559297))
 ```
 
-and want to compare their balances, choosing one with most ether in it:
+and want to choose one with most Ether in it:
 
 ```scala
   val result = highestBalance(rq1, rq2, rq3)
