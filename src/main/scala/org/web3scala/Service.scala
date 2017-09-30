@@ -14,406 +14,479 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
               httpClient: JValueHttpClient = new DispatchHttpClient
              ) extends Ethereum {
 
-  override def web3ClientVersion: Response = {
+  override def web3ClientVersion: Either[Error, Web3ClientVersion] = {
     val rq = GenericRequest(method = "web3_clientVersion")
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => Web3ClientVersion(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(Web3ClientVersion(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String]))
     }
   }
-  override def web3Sha3(data: String): Response = {
+  override def web3Sha3(data: String): Either[Error, Web3Sha3] = {
     val rq = GenericRequest(method = "web3_sha3", params = data :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => Web3Sha3(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(Web3Sha3(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String]))
     }
   }
-  override def netVersion: Response = {
+  override def netVersion: Either[Error, NetVersion] = {
     val rq = GenericRequest(method = "net_version")
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => NetVersion(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String].toInt)
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(NetVersion(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String].toInt))
     }
   }
-  override def netListening: Response = {
+  override def netListening: Either[Error, NetListening] = {
     val rq = GenericRequest(method = "net_listening")
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => NetListening(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[Boolean])
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(NetListening(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[Boolean]))
     }
   }
-  override def netPeerCount: Response = {
+  override def netPeerCount: Either[Error, NetPeerCount] = {
     val rq = GenericRequest(method = "net_peerCount")
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => NetPeerCount(rs.jsonrpc, rs.id, Utils.hex2int(rs.result.get.asInstanceOf[String]))
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(NetPeerCount(rs.jsonrpc, rs.id, Utils.hex2int(rs.result.get.asInstanceOf[String])))
     }
   }
-  override def ethProtocolVersion: Response = {
+  override def ethProtocolVersion: Either[Error, EthProtocolVersion] = {
     val rq = GenericRequest(method = "eth_protocolVersion")
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthProtocolVersion(rs.jsonrpc, rs.id, Utils.hex2int(rs.result.get.asInstanceOf[String]))
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthProtocolVersion(rs.jsonrpc, rs.id, Utils.hex2int(rs.result.get.asInstanceOf[String])))
     }
   }
-  override def ethSyncing: Response = {
+  override def ethSyncing: Either[Error, Response] = {
     val rq = GenericRequest(method = "eth_syncing")
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
       case None =>
         rs.result.get match {
-          case b: Boolean => EthSyncingFalse(rs.jsonrpc, rs.id, b)
+          case b: Boolean => Right(EthSyncingFalse(rs.jsonrpc, rs.id, b))
           case m: HashMap[_,_] =>
-            val map = m.map {
-              x => (x._1.asInstanceOf[String], Utils.hex2long(x._2.asInstanceOf[String]))
-            }
-            EthSyncingTrue(rs.jsonrpc, rs.id, map)
+            import org.web3scala.json.JacksonReaders._
+            val syncing = Extraction.decompose(m).as[Syncing]
+            Right(EthSyncingTrue(rs.jsonrpc, rs.id, syncing))
         }
     }
   }
-  override def ethCoinbase: Response = {
+  override def ethCoinbase: Either[Error, EthCoinbase] = {
     val rq = GenericRequest(method = "eth_coinbase")
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthCoinbase(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthCoinbase(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String]))
     }
   }
-  override def ethMining: Response = {
+  override def ethMining: Either[Error, EthMining] = {
     val rq = GenericRequest(method = "eth_mining")
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthMining(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[Boolean])
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthMining(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[Boolean]))
     }
   }
-  override def ethHashrate: Response = {
+  override def ethHashrate: Either[Error, EthHashrate] = {
     val rq = GenericRequest(method = "eth_hashrate")
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthHashrate(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String]))
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthHashrate(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String])))
     }
   }
-  override def ethGasPrice: Response = {
+  override def ethGasPrice: Either[Error, EthGasPrice] = {
     val rq = GenericRequest(method = "eth_gasPrice")
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthGasPrice(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String]))
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthGasPrice(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String])))
     }
   }
-  override def ethAccounts: Response = {
+  override def ethAccounts: Either[Error, EthAccounts] = {
     val rq = GenericRequest(method = "eth_accounts")
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthAccounts(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[List[String]])
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthAccounts(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[List[String]]))
     }
   }
-  override def ethBlockNumber: Response = {
+  override def ethBlockNumber: Either[Error, EthBlockNumber] = {
     val rq = GenericRequest(method = "eth_blockNumber")
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthBlockNumber(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String]))
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthBlockNumber(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String])))
     }
   }
-  override def ethGetBalance(address: String, defaultBlock: BlockType): Response = {
+  override def ethGetBalance(address: String, defaultBlock: BlockType): Either[Error, EthBalance] = {
     val block = Service.blockValue(defaultBlock)
     val rq = GenericRequest(method = "eth_getBalance", params = address :: block :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthBalance(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String]))
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthBalance(rs.jsonrpc, rs.id, Utils.hex2bigint(rs.result.get.asInstanceOf[String])))
     }
   }
-  override def ethGetStorageAt(address: String, position: String, defaultBlock: BlockType): Response = {
+  override def ethGetStorageAt(address: String, position: String, defaultBlock: BlockType): Either[Error, EthStorage] = {
     val block = Service.blockValue(defaultBlock)
     val rq = GenericRequest(method = "eth_getStorageAt", params = address :: position :: block :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthStorage(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthStorage(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String]))
     }
   }
-  override def ethGetTransactionCount(address: String, defaultBlock: BlockType): Response = {
+  override def ethGetTransactionCount(address: String, defaultBlock: BlockType): Either[Error, EthTransactionCount] = {
     val block = Service.blockValue(defaultBlock)
     val rq = GenericRequest(method = "eth_getTransactionCount", params = address :: block :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthTransactionCount(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String]))
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthTransactionCount(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String])))
     }
   }
-  override def ethGetBlockTransactionCountByHash(blockHash: String): Response = {
+  override def ethGetBlockTransactionCountByHash(blockHash: String): Either[Error, EthBlockTransactionCount] = {
     val rq = GenericRequest(method = "eth_getBlockTransactionCountByHash", params = blockHash :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthBlockTransactionCount(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String]))
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthBlockTransactionCount(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String])))
     }
   }
-  override def ethGetBlockTransactionCountByNumber(defaultBlock: BlockType): Response = {
+  override def ethGetBlockTransactionCountByNumber(defaultBlock: BlockType): Either[Error, EthBlockTransactionCount] = {
     val block = Service.blockValue(defaultBlock)
     val rq = GenericRequest(method = "eth_getBlockTransactionCountByNumber", params = block :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthBlockTransactionCount(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String]))
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthBlockTransactionCount(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String])))
     }
   }
-  override def ethGetUncleCountByBlockHash(blockHash: String): Response = {
+  override def ethGetUncleCountByBlockHash(blockHash: String): Either[Error, EthUncleCount] = {
     val rq = GenericRequest(method = "eth_getUncleCountByBlockHash", params = blockHash :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthUncleCount(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String]))
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthUncleCount(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String])))
     }
   }
-  override def ethGetUncleCountByBlockNumber(defaultBlock: BlockType): Response = {
+  override def ethGetUncleCountByBlockNumber(defaultBlock: BlockType): Either[Error, EthUncleCount] = {
     val block = Service.blockValue(defaultBlock)
     val rq = GenericRequest(method = "eth_getUncleCountByBlockNumber", params = block :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthUncleCount(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String]))
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthUncleCount(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String])))
     }
   }
-  override def ethGetCode(address: String, defaultBlock: BlockType): Response = {
+  override def ethGetCode(address: String, defaultBlock: BlockType): Either[Error, EthCode] = {
     val block = Service.blockValue(defaultBlock)
     val rq = GenericRequest(method = "eth_getCode", params = address :: block :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthCode(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthCode(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String]))
     }
   }
-  override def ethSign(address: String, message: String): Response = {
+  override def ethSign(address: String, message: String): Either[Error, EthSign] = {
     val rq = GenericRequest(method = "eth_sign", params = address :: message :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthSign(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthSign(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String]))
     }
   }
-  override def ethSendTransaction(obj: EthSendTransactionObject): Response = {
+  override def ethSendTransaction(obj: EthSendTransactionObject): Either[Error, EthSendTransaction] = {
     val rq = GenericRequest(method = "eth_sendTransaction", params = obj :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthSendTransaction(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthSendTransaction(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String]))
     }
   }
-  override def ethSendRawTransaction(signedTransactionData: String): Response = {
+  override def ethSendRawTransaction(signedTransactionData: String): Either[Error, EthSendTransaction] = {
     val rq = GenericRequest(method = "eth_sendRawTransaction", params = signedTransactionData :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthSendTransaction(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthSendTransaction(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String]))
     }
   }
-  override def ethCall(obj: EthCallObject, defaultBlock: BlockType): Response = {
+  override def ethCall(obj: EthCallObject, defaultBlock: BlockType): Either[Error, EthCall] = {
     val block = Service.blockValue(defaultBlock)
     val rq = GenericRequest(method = "eth_call", params = obj :: block :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthCall(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthCall(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String]))
     }
   }
-  override def ethEstimateGas(obj: EthEstimateGasObject): Response = {
+  override def ethEstimateGas(obj: EthEstimateGasObject): Either[Error, EthEstimatedGas] = {
     val rq = GenericRequest(method = "eth_estimateGas", params = obj :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthEstimatedGas(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String]))
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthEstimatedGas(rs.jsonrpc, rs.id, Utils.hex2long(rs.result.get.asInstanceOf[String])))
     }
   }
-  override def ethGetBlockByHash(blockHash: String, fullTransactionObjects: Boolean): Response = {
+  override def ethGetBlockByHash(blockHash: String, fullTransactionObjects: Boolean): Either[Error, EthBlock] = {
     val rq = GenericRequest(method = "eth_getBlockByHash", params = blockHash :: fullTransactionObjects :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
       case None =>
         import org.web3scala.json.JacksonReaders._
         val block = if (fullTransactionObjects)
           Extraction.decompose(rs.result.get).as[BlockWithTransactions]
         else
           Extraction.decompose(rs.result.get).as[BlockWithoutTransactions]
-        EthBlock(rs.jsonrpc, rs.id, Some(block))
+        Right(EthBlock(rs.jsonrpc, rs.id, Some(block)))
     }
   }
-  override def ethGetBlockByNumber(defaultBlock: BlockType, fullTransactionObjects: Boolean): Response = {
+  override def ethGetBlockByNumber(defaultBlock: BlockType, fullTransactionObjects: Boolean): Either[Error, EthBlock] = {
     val block = Service.blockValue(defaultBlock)
     val rq = GenericRequest(method = "eth_getBlockByNumber", params = block :: fullTransactionObjects :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
       case None =>
         import org.web3scala.json.JacksonReaders._
         val block = if (fullTransactionObjects)
           Extraction.decompose(rs.result.get).as[BlockWithTransactions]
         else
           Extraction.decompose(rs.result.get).as[BlockWithoutTransactions]
-        EthBlock(rs.jsonrpc, rs.id, Some(block))
+        Right(EthBlock(rs.jsonrpc, rs.id, Some(block)))
     }
   }
-  override def ethGetTransactionByHash(transactionHash: String): Response = {
+  override def ethGetTransactionByHash(transactionHash: String): Either[Error, EthTransaction] = {
     val rq = GenericRequest(method = "eth_getTransactionByHash", params = transactionHash :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
       case None =>
         rs.result match {
           case Some(result) =>
             import org.web3scala.json.JacksonReaders._
             val transaction = Extraction.decompose(result).as[Transaction]
-            EthTransaction(rs.jsonrpc, rs.id, Some(transaction))
-          case None => EthTransaction(rs.jsonrpc, rs.id, None)
+            Right(EthTransaction(rs.jsonrpc, rs.id, Some(transaction)))
+          case None => Right(EthTransaction(rs.jsonrpc, rs.id, None))
         }
     }
   }
-  override def ethGetTransactionByBlockHashAndIndex(blockHash: String, transactionIndex: String): Response = {
+  override def ethGetTransactionByBlockHashAndIndex(blockHash: String, transactionIndex: String): Either[Error, EthTransaction] = {
     val rq = GenericRequest(method = "eth_getTransactionByBlockHashAndIndex", params = blockHash :: transactionIndex :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
       case None =>
         rs.result match {
           case Some(result) =>
             import org.web3scala.json.JacksonReaders._
             val transaction = Extraction.decompose(result).as[Transaction]
-            EthTransaction(rs.jsonrpc, rs.id, Some(transaction))
-          case None => EthTransaction(rs.jsonrpc, rs.id, None)
+            Right(EthTransaction(rs.jsonrpc, rs.id, Some(transaction)))
+          case None => Right(EthTransaction(rs.jsonrpc, rs.id, None))
         }
     }
   }
-  override def ethGetTransactionByBlockNumberAndIndex(defaultBlock: BlockType, transactionIndex: String): Response = {
+  override def ethGetTransactionByBlockNumberAndIndex(defaultBlock: BlockType, transactionIndex: String): Either[Error, EthTransaction] = {
     val block = Service.blockValue(defaultBlock)
     val rq = GenericRequest(method = "eth_getTransactionByBlockNumberAndIndex", params = block :: transactionIndex :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
       case None =>
         rs.result match {
           case Some(result) =>
             import org.web3scala.json.JacksonReaders._
             val transaction = Extraction.decompose(result).as[Transaction]
-            EthTransaction(rs.jsonrpc, rs.id, Some(transaction))
-          case None => EthTransaction(rs.jsonrpc, rs.id, None)
+            Right(EthTransaction(rs.jsonrpc, rs.id, Some(transaction)))
+          case None => Right(EthTransaction(rs.jsonrpc, rs.id, None))
         }
     }
   }
-  override def ethGetTransactionReceipt(transactionHash: String): Response = {
+  override def ethGetTransactionReceipt(transactionHash: String): Either[Error, EthTransactionReceipt] = {
     val rq = GenericRequest(method = "eth_getTransactionReceipt", params = transactionHash :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
       case None =>
         rs.result match {
           case Some(result) =>
             import org.web3scala.json.JacksonReaders._
             val transactionReceipt = Extraction.decompose(result).as[TransactionReceipt]
-            EthTransactionReceipt(rs.jsonrpc, rs.id, Some(transactionReceipt))
-          case None => EthTransactionReceipt(rs.jsonrpc, rs.id, None)
+            Right(EthTransactionReceipt(rs.jsonrpc, rs.id, Some(transactionReceipt)))
+          case None => Right(EthTransactionReceipt(rs.jsonrpc, rs.id, None))
         }
     }
   }
-  override def ethGetUncleByBlockHashAndIndex(blockHash: String, uncleIndex: String): Response = {
+  override def ethGetUncleByBlockHashAndIndex(blockHash: String, uncleIndex: String): Either[Error, EthBlock] = {
     val rq = GenericRequest(method = "eth_getUncleByBlockHashAndIndex", params = blockHash :: uncleIndex :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
       case None =>
         rs.result match {
           case Some(result) =>
             import org.web3scala.json.JacksonReaders._
             val block = Extraction.decompose(result).as[BlockWithoutTransactions]
-            EthBlock(rs.jsonrpc, rs.id, Some(block))
-          case None => EthBlock(rs.jsonrpc, rs.id, None)
+            Right(EthBlock(rs.jsonrpc, rs.id, Some(block)))
+          case None => Right(EthBlock(rs.jsonrpc, rs.id, None))
         }
     }
   }
-  override def ethGetUncleByBlockNumberAndIndex(defaultBlock: BlockType, uncleIndex: String): Response = {
+  override def ethGetUncleByBlockNumberAndIndex(defaultBlock: BlockType, uncleIndex: String): Either[Error, EthBlock] = {
     val block = Service.blockValue(defaultBlock)
     val rq = GenericRequest(method = "eth_getUncleByBlockNumberAndIndex", params = block :: uncleIndex :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
       case None =>
         rs.result match {
           case Some(result) =>
             import org.web3scala.json.JacksonReaders._
             val block = Extraction.decompose(result).as[BlockWithoutTransactions]
-            EthBlock(rs.jsonrpc, rs.id, Some(block))
-          case None => EthBlock(rs.jsonrpc, rs.id, None)
+            Right(EthBlock(rs.jsonrpc, rs.id, Some(block)))
+          case None => Right(EthBlock(rs.jsonrpc, rs.id, None))
         }
     }
   }
-  override def ethNewFilter(obj: EthNewFilterObject): Response = {
+  override def ethNewFilter(obj: EthNewFilterObject): Either[Error, EthFilter] = {
     val rq = GenericRequest(method = "eth_newFilter", params = obj :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthFilter(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthFilter(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String]))
     }
   }
-  override def ethNewBlockFilter: Response = {
+  override def ethNewBlockFilter: Either[Error, EthFilter] = {
     val rq = GenericRequest(method = "eth_newBlockFilter")
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthFilter(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthFilter(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String]))
     }
   }
-  override def ethNewPendingTransactionFilter: Response = {
+  override def ethNewPendingTransactionFilter: Either[Error, EthFilter] = {
     val rq = GenericRequest(method = "eth_newPendingTransactionFilter")
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthFilter(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String])
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthFilter(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String]))
     }
   }
-  override def ethUninstallFilter(id: String): Response = {
+  override def ethUninstallFilter(id: String): Either[Error, EthUninstallFilter] = {
     val rq = GenericRequest(method = "eth_uninstallFilter", params = id :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => EthUninstallFilter(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[Boolean])
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthUninstallFilter(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[Boolean]))
     }
   }
-  override def ethGetFilterChanges(id: String): Response = {
+  override def ethGetFilterChanges(id: String): Either[Error, EthFilterLogs] = {
     val rq = GenericRequest(method = "eth_getFilterChanges", params = id :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => processGetFilterLogsResponse(rs)
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(processGetFilterLogsResponse(rs))
     }
   }
-  override def ethGetFilterLogs(id: String): Response = {
+  override def ethGetFilterLogs(id: String): Either[Error, EthFilterLogs] = {
     val rq = GenericRequest(method = "eth_getFilterLogs", params = id :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => processGetFilterLogsResponse(rs)
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(processGetFilterLogsResponse(rs))
     }
   }
-  override def ethGetLogs(obj: EthNewFilterObject): Response = {
+  override def ethGetLogs(obj: EthNewFilterObject): Either[Error, EthFilterLogs] = {
     val rq = GenericRequest(method = "eth_getLogs", params = obj :: Nil)
     val rs = executeSync(rq)
     rs.error match {
-      case Some(e) => Error(rs.jsonrpc, rs.id, e)
-      case None => processGetFilterLogsResponse(rs)
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(processGetFilterLogsResponse(rs))
     }
   }
+  override def ethGetWork: Either[Error, EthWork] = {
+    val rq = GenericRequest(method = "eth_getWork")
+    val rs = executeSync(rq)
+    rs.error match {
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthWork(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[List[String]]))
+    }
+  }
+  override def ethSubmitWork(nonce: String, powHash: String, mixDigest: String): Either[Error, EthSubmitWork] = {
+    val rq = GenericRequest(method = "eth_submitWork", params = nonce :: powHash :: mixDigest :: Nil)
+    val rs = executeSync(rq)
+    rs.error match {
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthSubmitWork(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[Boolean]))
+    }
+  }
+  override def ethSubmitHashrate(hashrate: String, clientId: String): Either[Error, EthSubmitHashrate] = {
+    val rq = GenericRequest(method = "eth_submitHashrate", params = hashrate :: clientId :: Nil)
+    val rs = executeSync(rq)
+    rs.error match {
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(EthSubmitHashrate(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[Boolean]))
+    }
+  }
+  override def shhVersion: Either[Error, ShhVersion] = {
+    val rq = GenericRequest(method = "shh_version")
+    val rs = executeSync(rq)
+    rs.error match {
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(ShhVersion(rs.jsonrpc, rs.id, BigDecimal(rs.result.get.asInstanceOf[String])))
+    }
+  }
+  override def shhInfo: Either[Error, ShhInfo] = {
+    val rq = GenericRequest(method = "shh_info")
+    val rs = executeSync(rq)
+    rs.error match {
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None =>
+        rs.result.get match {
+          case m: Map[_, _] =>
+            import org.web3scala.json.JacksonReaders._
+            val infoDetails = Extraction.decompose(m).as[ShhInfoDetails]
+            Right(ShhInfo(rs.jsonrpc, rs.id, infoDetails))
+        }
+    }
+  }
+  override def shhNewSymKey: Either[Error, ShhNewSymKey] = {
+    val rq = GenericRequest(method = "shh_newSymKey")
+    val rs = executeSync(rq)
+    rs.error match {
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(ShhNewSymKey(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String]))
+    }
+  }
+  override def shhNewMessageFilter(obj: ShhNewMessageFilterObject): Either[Error, ShhMessageFilter] = {
+    val rq = GenericRequest(method = "shh_newMessageFilter", params = obj :: Nil)
+    val rs = executeSync(rq)
+    rs.error match {
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(ShhMessageFilter(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[String]))
+    }
+  }
+  override def shhPost(obj: ShhMessageObject): Either[Error, ShhPost] = {
+    val rq = GenericRequest(method = "shh_post", params = obj :: Nil)
+    val rs = executeSync(rq)
+    rs.error match {
+      case Some(e) => Left(Error(rs.jsonrpc, rs.id, e))
+      case None => Right(ShhPost(rs.jsonrpc, rs.id, rs.result.get.asInstanceOf[Boolean]))
+    }
+  }
+
+
+
+
 
 
   private def processGetFilterLogsResponse(rs: GenericResponse): EthFilterLogs = {
@@ -431,7 +504,6 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
       }
     }
   }
-
   override def asyncWeb3ClientVersion: AsyncResponse = {
     val rq = GenericRequest(method = "web3_clientVersion")
     executeAsync(rq)
@@ -606,7 +678,38 @@ class Service(jsonMapper: JsonMapper = new JacksonJsonMapper,
     val rq = GenericRequest(method = "eth_getLogs", params = obj :: Nil)
     executeAsync(rq)
   }
-
+  override def asyncEthGetWork: AsyncResponse = {
+    val rq = GenericRequest(method = "eth_getWork")
+    executeAsync(rq)
+  }
+  override def asyncEthSubmitWork(nonce: String, powHash: String, mixDigest: String): AsyncResponse = {
+    val rq = GenericRequest(method = "eth_submitWork", params = nonce :: powHash :: mixDigest :: Nil)
+    executeAsync(rq)
+  }
+  override def asyncEthSubmitHashrate(hashrate: String, clientId: String): AsyncResponse = {
+    val rq = GenericRequest(method = "eth_submitHashrate", params = hashrate :: clientId :: Nil)
+    executeAsync(rq)
+  }
+  override def asyncShhVersion: AsyncResponse = {
+    val rq = GenericRequest(method = "shh_version")
+    executeAsync(rq)
+  }
+  override def asyncShhInfo: AsyncResponse = {
+    val rq = GenericRequest(method = "shh_info")
+    executeAsync(rq)
+  }
+  override def asyncShhNewSymKey: AsyncResponse = {
+    val rq = GenericRequest(method = "shh_newSymKey")
+    executeAsync(rq)
+  }
+  override def asyncShhNewMessageFilter(obj: ShhNewMessageFilterObject): AsyncResponse = {
+    val rq = GenericRequest(method = "shh_newMessageFilter", params = obj :: Nil)
+    executeAsync(rq)
+  }
+  override def asyncShhPost(obj: ShhMessageObject): AsyncResponse = {
+    val rq = GenericRequest(method = "shh_post", params = obj :: Nil)
+    executeAsync(rq)
+  }
 
 
 

@@ -20,6 +20,15 @@ object JacksonReaders {
       (json \ "message").extract[String]
     )
   }
+  implicit object SyncingReader extends Reader[Syncing] {
+    def read(json: JValue): Syncing = Syncing(
+      Utils.hex2int((json \ "pulledStates").extract[String]),
+      Utils.hex2int((json \ "knownStates").extract[String]),
+      Utils.hex2int((json \ "currentBlock").extract[String]),
+      Utils.hex2int((json \ "highestBlock").extract[String]),
+      Utils.hex2int((json \ "startingBlock").extract[String])
+    )
+  }
   implicit object BlockWithoutTransactionsReader extends Reader[BlockWithoutTransactions] {
     def read(json: JValue): BlockWithoutTransactions = BlockWithoutTransactions(
       Utils.hex2long((json \ "number").extract[String]),
@@ -33,7 +42,7 @@ object JacksonReaders {
       (json \ "sha3Uncles").extract[String],
       (json \ "logsBloom").extract[String],
       (json \ "size").extract[String],
-      Utils.hex2long((json \ "difficulty").extract[String]),
+      Utils.hex2bigint((json \ "difficulty").extract[String]),
       (json \ "totalDifficulty").extract[String],
       (json \ "extraData").extract[String],
       Utils.hex2long((json \ "size").extract[String]),
@@ -57,7 +66,7 @@ object JacksonReaders {
       (json \ "sha3Uncles").extract[String],
       (json \ "logsBloom").extract[String],
       (json \ "size").extract[String],
-      Utils.hex2long((json \ "difficulty").extract[String]),
+      Utils.hex2bigint((json \ "difficulty").extract[String]),
       (json \ "totalDifficulty").extract[String],
       (json \ "extraData").extract[String],
       Utils.hex2long((json \ "size").extract[String]),
@@ -135,4 +144,13 @@ object JacksonReaders {
       json.children.map(x => x.as[FilterLog](FilterLogReader, manifest[FilterLog]))
     )
   }
+  implicit object ShhInfoDetailsReader extends Reader[ShhInfoDetails] {
+    def read(json: JValue): ShhInfoDetails = ShhInfoDetails(
+      (json \ "memory").extract[Int],
+      (json \ "messages").extract[Int],
+      (json \ "minPow").extract[Float],
+      (json \ "maxMessageSize").extract[Int]
+    )
+  }
+
 }

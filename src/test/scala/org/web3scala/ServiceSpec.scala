@@ -40,7 +40,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).web3ClientVersion
 
-    response.asInstanceOf[Web3ClientVersion].result shouldBe "Geth/v1.6.7-stable-ab5646c5/darwin-amd64/go1.8.3"
+    response.right.get.result shouldBe "Geth/v1.6.7-stable-ab5646c5/darwin-amd64/go1.8.3"
   }
   it should "return Keccak-256 of the given data, when invoking web3Sha3 method with valid input" in {
 
@@ -50,7 +50,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).web3Sha3(rqData)
 
-    response.asInstanceOf[Web3Sha3].result shouldBe "0xa91eddf639b0b768929589c1a9fd21dcb0107199bdd82e55c5348018a1572f52"
+    response.right.get.result shouldBe "0xa91eddf639b0b768929589c1a9fd21dcb0107199bdd82e55c5348018a1572f52"
   }
   it should "return Error object, when invoking web3Sha3 method with invalid input" in {
 
@@ -66,9 +66,9 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).web3Sha3(rqData)
 
-    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
-    response.asInstanceOf[Error].error.code shouldBe -32602
-    response.asInstanceOf[Error].error.message shouldBe
+    response.left.get.error shouldBe a [ErrorContent]
+    response.left.get.error.code shouldBe -32602
+    response.left.get.error.message shouldBe
       "invalid argument 0: json: cannot unmarshal hex string without 0x prefix into Go value of type hexutil.Bytes"
   }
   it should "return current network id, when invoking netVersion method" in {
@@ -78,7 +78,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).netVersion
 
-    response.asInstanceOf[NetVersion].result shouldBe 3
+    response.right.get.result shouldBe 3
   }
   it should "return true if client is actively listening for network connections, when invoking netListening method" in {
 
@@ -87,7 +87,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).netListening
 
-    response.asInstanceOf[NetListening].result shouldBe true
+    response.right.get.result shouldBe true
   }
   it should "return number of peers currently connected to the client, when invoking netPeerCount method" in {
 
@@ -96,7 +96,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).netPeerCount
 
-    response.asInstanceOf[NetPeerCount].result shouldBe 11
+    response.right.get.result shouldBe 11
   }
   it should "return the current ethereum protocol version, when invoking ethProtocolVersion method" in {
 
@@ -105,7 +105,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethProtocolVersion
 
-    response.asInstanceOf[EthProtocolVersion].result shouldBe 63
+    response.right.get.result shouldBe 63
   }
   it should "return false, when invoking ethSyncing method and synchronization with blockchain is not taking place" in {
 
@@ -114,24 +114,24 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethSyncing
 
-    response.asInstanceOf[EthSyncingFalse].result shouldBe false
+    response.right.get.asInstanceOf[EthSyncingFalse].result shouldBe false
   }
-  it should "return an object with data about the sync status, when invoking ethSyncing method and synchronization with blockchain is taking place" in {
+  it should "return an object with data about the sync status, when invoking ethSyncing method and synchronization " +
+    "with blockchain is taking place" in {
 
     val rsData = HashMap(
-      ("pulledStates", "0x1307"),
-      ("knownStates", "0x2527"),
-      ("currentBlock", "0x1d640"),
-      ("highestBlock", "0xcbccb"),
-      ("startingBlock", "0x1d640")
+      "pulledStates" -> "0x1307",
+      "knownStates" -> "0x2527",
+      "currentBlock" -> "0x1d640",
+      "highestBlock" -> "0xcbccb",
+      "startingBlock" -> "0x1d640"
     )
     val rq = GenericRequest(method = "eth_syncing")
     val rs = GenericResponse("2.0", 33, None, Some(rsData))
 
     val response = service(rq, rs).ethSyncing
 
-    response.asInstanceOf[EthSyncingTrue].result.mkString(", ") shouldBe
-      "pulledStates -> 4871, knownStates -> 9511, currentBlock -> 120384, highestBlock -> 834763, startingBlock -> 120384"
+    response.right.get.asInstanceOf[EthSyncingTrue].result.pulledStates shouldBe Utils.hex2int(rsData("pulledStates"))
   }
   it should "return the client coinbase address, when invoking ethCoinbase method" in {
 
@@ -140,7 +140,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethCoinbase
 
-    response.asInstanceOf[EthCoinbase].result shouldBe "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617"
+    response.right.get.result shouldBe "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617"
   }
   it should "return true if client is actively mining new blocks, when invoking ethMining method" in {
 
@@ -149,7 +149,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethMining
 
-    response.asInstanceOf[EthMining].result shouldBe false
+    response.right.get.result shouldBe false
   }
   it should "return the number of hashes per second that the node is mining with, when invoking ethHashrate method" in {
 
@@ -158,7 +158,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethHashrate
 
-    response.asInstanceOf[EthHashrate].result shouldBe 0
+    response.right.get.result shouldBe 0
   }
   it should "return the current price per gas in wei, when invoking ethGasPrice method" in {
 
@@ -167,7 +167,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGasPrice
 
-    response.asInstanceOf[EthGasPrice].result shouldBe 30000000000L
+    response.right.get.result shouldBe 30000000000L
   }
   it should "return list of addresses owned by client, when invoking ethAccounts method" in {
 
@@ -181,7 +181,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethAccounts
 
-    response.asInstanceOf[EthAccounts].result.mkString(", ") shouldBe
+    response.right.get.result.mkString(", ") shouldBe
       "0x1f2e3994505ea24642d94d00a4bcf0159ed1a617, 0xd179a76b1d0a91dc8287afc9032cae34f283873d, 0xf9c510e90bcb47cc49549e57b80814ae3a8bb683"
   }
   it should "return the number of most recent block, when invoking ethBlockNumber method" in {
@@ -191,7 +191,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethBlockNumber
 
-    response.asInstanceOf[EthBlockNumber].result shouldBe 1616387L
+    response.right.get.result shouldBe 1616387L
   }
   it should "return the balance of the account of given address, when invoking ethGetBalance method with block number" in {
 
@@ -204,7 +204,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetBalance(address, blockNumber)
 
-    response.asInstanceOf[EthBalance].result shouldBe 5268233720000000000L
+    response.right.get.result shouldBe 5268233720000000000L
   }
   it should "return Error object, when invoking ethGetBalance method with invalid input" in {
 
@@ -223,9 +223,9 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetBalance(address, blockNumber)
 
-    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
-    response.asInstanceOf[Error].error.code shouldBe -32000
-    response.asInstanceOf[Error].error.message shouldBe
+    response.left.get.error shouldBe a [ErrorContent]
+    response.left.get.error.code shouldBe -32000
+    response.left.get.error.message shouldBe
       "missing trie node 81f524d8384c88d5104a749895c8ed6d3f1a01c8c5f78bd547f74c10862964bc (path )"
   }
   it should "return the balance of the account of given address, when invoking ethGetBalance method with block name" in {
@@ -239,7 +239,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetBalance(address, blockName)
 
-    response.asInstanceOf[EthBalance].result shouldBe 500000000000000000L
+    response.right.get.result shouldBe 500000000000000000L
   }
   it should "return the value from a storage position at a given address, when invoking ethGetStorageAt method" in {
 
@@ -253,7 +253,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetStorageAt(address, position, blockName)
 
-    response.asInstanceOf[EthStorage].result shouldBe "0x0000000000000000000000000000000000000000000000000000000000000000"
+    response.right.get.result shouldBe "0x0000000000000000000000000000000000000000000000000000000000000000"
   }
   it should "return the value, for an element of the map, from a storage position at a given address, when invoking ethGetStorageAt method" is pending
   it should "return the number of transactions sent from an address, when invoking ethGetTransactionCount method" in {
@@ -267,7 +267,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetTransactionCount(address, blockName)
 
-    response.asInstanceOf[EthTransactionCount].result shouldBe 10
+    response.right.get.result shouldBe 10
   }
   it should "return the number of transactions in a block from a block matching the given block hash, when invoking ethGetBlockTransactionCountByHash method" in {
 
@@ -278,7 +278,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetBlockTransactionCountByHash(blockHash)
 
-    response.asInstanceOf[EthBlockTransactionCount].result shouldBe 8
+    response.right.get.result shouldBe 8
   }
   it should "return Error object, when invoking ethGetBlockTransactionCountByHash method with invalid input" in {
 
@@ -295,10 +295,9 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetBlockTransactionCountByHash(blockHash)
 
-    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
-    response.asInstanceOf[Error].error.code shouldBe -32602
-    response.asInstanceOf[Error].error.message shouldBe
-      "invalid argument 0: hex string has length 40, want 64 for common.Hash"
+    response.left.get.error shouldBe a [ErrorContent]
+    response.left.get.error.code shouldBe -32602
+    response.left.get.error.message shouldBe "invalid argument 0: hex string has length 40, want 64 for common.Hash"
   }
   it should "return the number of transactions in a block from a block matching the given block number, when invoking ethGetBlockTransactionCountByNumber method" in {
 
@@ -310,7 +309,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetBlockTransactionCountByNumber(blockNumber)
 
-    response.asInstanceOf[EthBlockTransactionCount].result shouldBe 6
+    response.right.get.result shouldBe 6
   }
   it should "return the number of uncles in a block from a block matching the given block hash, when invoking ethGetUncleCountByBlockHash method" in {
 
@@ -321,7 +320,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetUncleCountByBlockHash(blockHash)
 
-    response.asInstanceOf[EthUncleCount].result shouldBe 0
+    response.right.get.result shouldBe 0
   }
   it should "return the number of uncles in a block from a block matching the given block number, when invoking ethGetUncleCountByBlockNumber method" in {
 
@@ -333,7 +332,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetUncleCountByBlockNumber(blockNumber)
 
-    response.asInstanceOf[EthUncleCount].result shouldBe 0
+    response.right.get.result shouldBe 0
   }
   it should "return code at a given address, when invoking ethGetCode method" in {
 
@@ -346,7 +345,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetCode(address, blockNumber)
 
-    response.asInstanceOf[EthCode].result shouldBe "0x0"
+    response.right.get.result shouldBe "0x0"
   }
   it should "return calculated Ethereum specific signature, when invoking ethSign method" in {
 
@@ -360,7 +359,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethSign(address, message)
 
-    response.asInstanceOf[EthSign].result shouldBe
+    response.right.get.result shouldBe
       "0xa3f20717a250c2b0b729b7e5becbff67fdaef7e0699da4de7ca5895b02a170a12d887fd3b17bfdce3481f10bea41f45ba9f709d39ce8325427b57afcfc994cee1b"
   }
   it should "return Error object, when invoking ethSign method with unknown account" in {
@@ -373,9 +372,9 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethSign(address, message)
 
-    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
-    response.asInstanceOf[Error].error.code shouldBe -32000
-    response.asInstanceOf[Error].error.message shouldBe "unknown account"
+    response.left.get.error shouldBe a [ErrorContent]
+    response.left.get.error.code shouldBe -32000
+    response.left.get.error.message shouldBe "unknown account"
   }
   it should "return Error object, when invoking ethSign method with locked account" in {
 
@@ -387,9 +386,9 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethSign(address, message)
 
-    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
-    response.asInstanceOf[Error].error.code shouldBe -32000
-    response.asInstanceOf[Error].error.message shouldBe "authentication needed: password or unlock"
+    response.left.get.error shouldBe a [ErrorContent]
+    response.left.get.error.code shouldBe -32000
+    response.left.get.error.message shouldBe "authentication needed: password or unlock"
   }
   it should "create new message call transaction or a create a contract, if the data field contains code, when invoking ethSendTransaction method" in {
 
@@ -408,7 +407,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethSendTransaction(ethSendTransactionObj)
 
-    response.asInstanceOf[EthSendTransaction].result shouldBe "0x88146924ed5462e0c213b2c1f7d2c4a9f8a3218218a27642b5ea632e465b5a42"
+    response.right.get.result shouldBe "0x88146924ed5462e0c213b2c1f7d2c4a9f8a3218218a27642b5ea632e465b5a42"
   }
   it should "return Error object, when invoking ethSendTransaction method with locked account" in {
 
@@ -426,9 +425,9 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethSendTransaction(ethSendTransactionObj)
 
-    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
-    response.asInstanceOf[Error].error.code shouldBe -32000
-    response.asInstanceOf[Error].error.message shouldBe "authentication needed: password or unlock"
+    response.left.get.error shouldBe a [ErrorContent]
+    response.left.get.error.code shouldBe -32000
+    response.left.get.error.message shouldBe "authentication needed: password or unlock"
   }
   it should "create new message call transaction or a contract creation for signed transactions, when invoking ethSendRawTransaction method" in {
 
@@ -439,7 +438,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethSendRawTransaction(signedTransactionData)
 
-    response.asInstanceOf[EthSendTransaction].result shouldBe "0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331"
+    response.right.get.result shouldBe "0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331"
   }
   it should "return Error object, when invoking ethSendRawTransaction method with element larger than containing list" in {
 
@@ -450,9 +449,9 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethSendRawTransaction(signedTransactionData)
 
-    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
-    response.asInstanceOf[Error].error.code shouldBe -32000
-    response.asInstanceOf[Error].error.message shouldBe "rlp: element is larger than containing list"
+    response.left.get.error shouldBe a [ErrorContent]
+    response.left.get.error.code shouldBe -32000
+    response.left.get.error.message shouldBe "rlp: element is larger than containing list"
   }
   it should "execute a new message call immediately without creating a transaction on the block chain, when invoking ethCall method" in {
 
@@ -473,7 +472,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethCall(ethCallObj, blockNumber)
 
-    response.asInstanceOf[EthCall].result shouldBe "0x"
+    response.right.get.result shouldBe "0x"
   }
   it should "make a call or transaction, which won't be added to the blockchain and return the used gas, which " +
     "can be used for estimating the used gas, when invoking ethEstimateGas method" in {
@@ -492,7 +491,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethEstimateGas(ethEstimateGasObj)
 
-    response.asInstanceOf[EthEstimatedGas].result shouldBe 21341
+    response.right.get.result shouldBe 21341
   }
   it should "return information about a block by hash, when invoking ethGetBlockByHash method" in {
 
@@ -564,7 +563,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetBlockByHash(blockHash, fullTransactionObjects)
 
-    val actualResult = response.asInstanceOf[EthBlock].result.get.asInstanceOf[BlockWithTransactions].nonce
+    val actualResult = response.right.get.result.get.asInstanceOf[BlockWithTransactions].nonce
     val expectedResult = Utils.hex2long(rsData("nonce").toString)
 
     actualResult shouldBe expectedResult
@@ -640,7 +639,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetBlockByNumber(blockNumber, fullTransactionObjects)
 
-    val actualResult = response.asInstanceOf[EthBlock].result.get.asInstanceOf[BlockWithTransactions].nonce
+    val actualResult = response.right.get.result.get.asInstanceOf[BlockWithTransactions].nonce
     val expectedResult = Utils.hex2long(rsData("nonce").toString)
 
     actualResult shouldBe expectedResult
@@ -668,10 +667,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetTransactionByHash(transactionHash)
 
-    val actualResult = response.asInstanceOf[EthTransaction].result.get.nonce
-    val expectedResult = Utils.hex2long(rsData("nonce"))
-
-    actualResult shouldBe expectedResult
+    response.right.get.result.get.nonce shouldBe Utils.hex2long(rsData("nonce"))
   }
   it should "return information about a transaction by block hash and transaction index position, when " +
     "invoking ethGetTransactionByBlockHashAndIndex method" in {
@@ -698,10 +694,8 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetTransactionByBlockHashAndIndex(blockHash, transactionIndex)
 
-    val actualResult = response.asInstanceOf[EthTransaction].result.get.nonce
-    val expectedResult = Utils.hex2long(rsData("nonce"))
+    response.right.get.result.get.nonce shouldBe Utils.hex2long(rsData("nonce"))
 
-    actualResult shouldBe expectedResult
   }
   it should "return information about a transaction by block number and transaction index position, when " +
     "invoking ethGetTransactionByBlockNumberAndIndex method" in {
@@ -729,10 +723,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetTransactionByBlockNumberAndIndex(blockNumber, transactionIndex)
 
-    val actualResult = response.asInstanceOf[EthTransaction].result.get.nonce
-    val expectedResult = Utils.hex2long(rsData("nonce"))
-
-    actualResult shouldBe expectedResult
+    response.right.get.result.get.nonce shouldBe Utils.hex2long(rsData("nonce"))
   }
   it should "return the receipt of a transaction by transaction hash, when invoking ethGetTransactionReceipt method" in {
 
@@ -773,10 +764,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetTransactionReceipt(transactionHash)
 
-    val actualResult = response.asInstanceOf[EthTransactionReceipt].result.get.gasUsed
-    val expectedResult = Utils.hex2long(rsData("gasUsed").toString)
-
-    actualResult shouldBe expectedResult
+    response.right.get.result.get.gasUsed shouldBe Utils.hex2long(rsData("gasUsed").toString)
   }
   it should "return information about an uncle of a block by hash and uncle index position, when " +
     "invoking ethGetUncleByBlockHashAndIndex method" in {
@@ -813,7 +801,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetUncleByBlockHashAndIndex(blockHash, uncleIndex)
 
-    val actualResult = response.asInstanceOf[EthBlock].result.get.asInstanceOf[BlockWithoutTransactions].nonce
+    val actualResult = response.right.get.result.get.asInstanceOf[BlockWithoutTransactions].nonce
     val expectedResult = Utils.hex2bigint(rsData("nonce").toString)
 
     actualResult shouldBe expectedResult
@@ -853,12 +841,13 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetUncleByBlockNumberAndIndex(blockNumber, uncleIndex)
 
-    val actualResult = response.asInstanceOf[EthBlock].result.get.asInstanceOf[BlockWithoutTransactions].nonce
+    val actualResult = response.right.get.result.get.asInstanceOf[BlockWithoutTransactions].nonce
     val expectedResult = Utils.hex2bigint(rsData("nonce").toString)
 
     actualResult shouldBe expectedResult
   }
-  it should "create a filter object, based on filter options, to notify when the state changes (logs), when invoking ethNewFilter method" in {
+  it should "create a filter object, based on filter options, to notify when the state changes (logs), when " +
+    "invoking ethNewFilter method" in {
 
     val fromBlockNumber  = BlockNumber(1682292)
     val toBlockNumber  = BlockNumber(1692292)
@@ -875,7 +864,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethNewFilter(ethNewFilterObj)
 
-    response.asInstanceOf[EthFilter].result shouldBe "0x63d9349a00ad6df9a8be212bc89b99ae"
+    response.right.get.result shouldBe "0x63d9349a00ad6df9a8be212bc89b99ae"
   }
   it should "return Error object, when invoking ethNewFilter method with invalid block combination" in {
 
@@ -890,31 +879,35 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
     )
 
     val rq = GenericRequest(method = "eth_newFilter", params = ethNewFilterObj :: Nil)
-    val rs = GenericResponse("2.0", 33, Some(ErrorContent(-32000, "invalid from and to block combination: from > to")), Some(AnyRef))
+    val rs = GenericResponse("2.0", 33, Some(
+      ErrorContent(-32000, "invalid from and to block combination: from > to")
+    ), Some(AnyRef))
 
     val response = service(rq, rs).ethNewFilter(ethNewFilterObj)
 
-    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
-    response.asInstanceOf[Error].error.code shouldBe -32000
-    response.asInstanceOf[Error].error.message shouldBe "invalid from and to block combination: from > to"
+    response.left.get.error shouldBe a [ErrorContent]
+    response.left.get.error.code shouldBe -32000
+    response.left.get.error.message shouldBe "invalid from and to block combination: from > to"
   }
-  it should "create a filter in the node, to notify when a new block arrives, when invoking ethNewBlockFilter method" in {
+  it should "create a filter in the node, to notify when a new block arrives, when invoking ethNewBlockFilter " +
+    "method" in {
 
     val rq = GenericRequest(method = "eth_newBlockFilter")
     val rs = GenericResponse("2.0", 33, None, Some("0xb1daad671143703d05179d4c95400658"))
 
     val response = service(rq, rs).ethNewBlockFilter
 
-    response.asInstanceOf[EthFilter].result shouldBe "0xb1daad671143703d05179d4c95400658"
+    response.right.get.result shouldBe "0xb1daad671143703d05179d4c95400658"
   }
-  it should "create a filter in the node, to notify when new pending transactions arrive, when invoking ethNewPendingTransactionFilter method" in {
+  it should "create a filter in the node, to notify when new pending transactions arrive, when invoking " +
+    "ethNewPendingTransactionFilter method" in {
 
     val rq = GenericRequest(method = "eth_newPendingTransactionFilter")
     val rs = GenericResponse("2.0", 33, None, Some("0x5e3d63e0605fecaf8a69d19a7605e6d1"))
 
     val response = service(rq, rs).ethNewPendingTransactionFilter
 
-    response.asInstanceOf[EthFilter].result shouldBe "0x5e3d63e0605fecaf8a69d19a7605e6d1"
+    response.right.get.result shouldBe "0x5e3d63e0605fecaf8a69d19a7605e6d1"
   }
   it should "uninstall a filter with given id, when invoking ethUninstallFilter method" in {
 
@@ -925,7 +918,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethUninstallFilter(filterId)
 
-    response.asInstanceOf[EthUninstallFilter].result shouldBe true
+    response.right.get.result shouldBe true
   }
   it should "return Error object, when invoking ethGetFilterChanges method with unknown filter id" in {
 
@@ -936,9 +929,9 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetFilterChanges(filterId)
 
-    response.asInstanceOf[Error].error shouldBe a [ErrorContent]
-    response.asInstanceOf[Error].error.code shouldBe -32000
-    response.asInstanceOf[Error].error.message shouldBe "filter not found"
+    response.left.get.error shouldBe a [ErrorContent]
+    response.left.get.error.code shouldBe -32000
+    response.left.get.error.message shouldBe "filter not found"
   }
   it should "return an array of logs (Strings) which occurred since last poll, when invoking ethGetFilterChanges " +
     "method with known Block or PendingTransaction filter id" in {
@@ -958,7 +951,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetFilterChanges(filterId)
 
-    response.asInstanceOf[EthFilterLogs].result shouldBe rsData
+    response.right.get.result shouldBe rsData
   }
   it should "return an array of logs (Objects) which occurred since last poll, when invoking ethGetFilterChanges " +
     "method with known filter id" in {
@@ -1001,13 +994,13 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetFilterChanges(filterId)
 
-    val actualResult = response.asInstanceOf[EthFilterLogs].result.asInstanceOf[List[FilterLog]].head.logIndex
+    val actualResult = response.right.get.result.asInstanceOf[List[FilterLog]].head.logIndex
     val expectedResult = Utils.hex2int(rsData.head("logIndex").toString)
 
     actualResult shouldBe expectedResult
   }
-  it should "return an array of all logs (Strings) matching filter with given id, when invoking ethGetFilterLogs method " +
-    "with known Block or PendingTransaction filter id" in {
+  it should "return an array of all logs (Strings) matching filter with given id, when invoking ethGetFilterLogs " +
+    "method with known Block or PendingTransaction filter id" in {
 
     val filterId = "0x8580b3b2433221f0c4459506552e95d4"
 
@@ -1024,7 +1017,7 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetFilterLogs(filterId)
 
-    response.asInstanceOf[EthFilterLogs].result shouldBe rsData
+    response.right.get.result shouldBe rsData
   }
   it should "return an array of all logs (Objects) matching a given filter object, when invoking ethGetLogs method" in {
 
@@ -1074,10 +1067,233 @@ class ServiceSpec extends FlatSpec with BeforeAndAfter with Matchers with Mockit
 
     val response = service(rq, rs).ethGetLogs(ethNewFilterObj)
 
-    val actualResult = response.asInstanceOf[EthFilterLogs].result.asInstanceOf[List[FilterLog]].head.logIndex
+    val actualResult = response.right.get.result.asInstanceOf[List[FilterLog]].head.logIndex
     val expectedResult = Utils.hex2int(rsData.head("logIndex").toString)
 
     actualResult shouldBe expectedResult
+  }
+  it should "return Error object, when invoking ethGetWork method while mining is disabled" in {
+
+    val rq = GenericRequest(method = "eth_getWork")
+    val rs = GenericResponse("2.0", 33,
+      Some(
+        ErrorContent(-32000,
+          "mining not ready: No work available yet, don't panic."
+        )
+      ), Some(AnyRef)
+    )
+
+    val response = service(rq, rs).ethGetWork
+
+    response.left.get.error shouldBe a [ErrorContent]
+    response.left.get.error.code shouldBe -32000
+    response.left.get.error.message shouldBe
+      "mining not ready: No work available yet, don't panic."
+  }
+  it should "return the hash of the current block, the seedHash, and the boundary condition to be met (\"target\"), " +
+    "when invoking ethGetWork method while mining is enabled" in {
+
+    val rsData = List(
+      "0xad258644d821ed04bfd7f9e8a259f5a79bd413fb25e2c57afe3c3a9ce2a1df8c",
+      "0xa1cf12393876a9e30788eb582aeea764ad71d6b2419f2c6b35706ec60b49c85c",
+      "0x00000043f191ab399e89d5fb1aa1cdf8479840055e5518c5b63f17948e777368"
+    )
+    val rq = GenericRequest(method = "eth_getWork")
+    val rs = GenericResponse("2.0", 33, None, Some(rsData))
+
+    val response = service(rq, rs).ethGetWork
+
+    response.right.get.result.mkString(", ") shouldBe
+      "0xad258644d821ed04bfd7f9e8a259f5a79bd413fb25e2c57afe3c3a9ce2a1df8c, " +
+        "0xa1cf12393876a9e30788eb582aeea764ad71d6b2419f2c6b35706ec60b49c85c, " +
+          "0x00000043f191ab399e89d5fb1aa1cdf8479840055e5518c5b63f17948e777368"
+  }
+  it should "return boolean result of submitting a proof-of-work solution, when invoking ethSubmitWork method" in {
+
+    val nonce = "0x0000000000000001"
+    val powHash = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    val mixDigest = "0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000"
+
+    val rq = GenericRequest(method = "eth_submitWork", params = nonce :: powHash :: mixDigest :: Nil)
+    val rs = GenericResponse("2.0", 33, None, Some(false))
+
+    val response = service(rq, rs).ethSubmitWork(nonce, powHash, mixDigest)
+
+    response.right.get.result shouldBe false
+  }
+  it should "return Error object, when invoking ethSubmitHashrate method with invalid parameters" in {
+
+    val hashrate = "0x0000000000000000000000000000000000000000000000000000000000500000"
+    val clientId = "0x59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c"
+
+    val rq = GenericRequest(method = "eth_submitHashrate", params = hashrate :: clientId :: Nil)
+    val rs = GenericResponse("2.0", 33,
+      Some(
+        ErrorContent(-32602,
+          "invalid argument 0: json: cannot unmarshal hex number with leading zero digits into Go value of type hexutil.Uint64"
+        )
+      ), Some(AnyRef)
+    )
+
+    val response = service(rq, rs).ethSubmitHashrate(hashrate, clientId)
+
+    response.left.get.error shouldBe a [ErrorContent]
+    response.left.get.error.code shouldBe -32602
+    response.left.get.error.message shouldBe
+      "invalid argument 0: json: cannot unmarshal hex number with leading zero digits into Go value of type hexutil.Uint64"
+  }
+  it should "return boolean result of submitting mining hashrate, when invoking ethSubmitHashrate method with " +
+    "valid parameters" in {
+
+    val hashrate = "0x500000"
+    val clientId = "0x59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c"
+
+    val rq = GenericRequest(method = "eth_submitHashrate", params = hashrate :: clientId :: Nil)
+    val rs = GenericResponse("2.0", 33, None, Some(true))
+
+    val response = service(rq, rs).ethSubmitHashrate(hashrate, clientId)
+
+    response.right.get.result shouldBe true
+  }
+  it should "return Error object, when invoking shhVersion method without geth node started with '--ssh' switch" in {
+
+    val rq = GenericRequest(method = "shh_version")
+    val rs = GenericResponse("2.0", 33,
+      Some(
+        ErrorContent(-32601,
+          "The method shh_version does not exist/is not available"
+        )
+      ), Some(AnyRef)
+    )
+
+    val response = service(rq, rs).shhVersion
+
+    response.left.get.error shouldBe a [ErrorContent]
+    response.left.get.error.code shouldBe -32601
+    response.left.get.error.message shouldBe "The method shh_version does not exist/is not available"
+  }
+  it should "return the current whisper protocol version, when invoking shhVersion method" in {
+
+    val rq = GenericRequest(method = "shh_version")
+    val rs = GenericResponse("2.0", 33, None, Some("5.0"))
+
+    val response = service(rq, rs).shhVersion
+
+    response.right.get.result shouldBe BigDecimal("5.0")
+  }
+  it should "return the Whisper statistics for diagnostics, when invoking sshInfo method" in {
+
+    val rsData = HashMap(
+      "memory" -> 610,
+      "messages" -> 0,
+      "minPow" -> 0.2,
+      "maxMessageSize" -> 1048576
+    )
+
+    val rq = GenericRequest(method = "shh_info")
+    val rs = GenericResponse("2.0", 33, None, Some(rsData))
+
+    val response = service(rq, rs).shhInfo
+
+    response.right.get.result.memory shouldBe rsData("memory")
+  }
+  it should "return Error object, when invoking shhNewMessageFilter method with invalid 'semKeyId' parameter" in {
+
+    val shhNewMessageFilterObject = ShhNewMessageFilterObject(
+      Some("b874f3bbaf031214a567485b703a025cec27d26b2c4457d6b139e56ad8734cea"),
+      None,
+      None,
+      "0x048229fb947363cf13bb9f9532e124f08840cd6287ecae6b537cda2947ec2b23dbdc3a07bdf7cd2bfb288c25c4d0d0461d91c719da736a22b7bebbcf912298d1e6",
+      12.3f,
+      2.3f,
+      List("0x5a4ea131", "0x11223344"),
+      allowP2P = false
+    )
+    val rq = GenericRequest(method = "shh_newMessageFilter", params = shhNewMessageFilterObject :: Nil)
+    val rs = GenericResponse("2.0", 33,
+      Some(
+        ErrorContent(-32000,
+          "non-existent key ID"
+        )
+      ), Some(AnyRef)
+    )
+
+    val response = service(rq, rs).shhNewMessageFilter(shhNewMessageFilterObject)
+
+    response.left.get.error shouldBe a [ErrorContent]
+    response.left.get.error.code shouldBe -32000
+    response.left.get.error.message shouldBe "non-existent key ID"
+  }
+  it should "return the ID of the newly created Filter, when invoking shhNewMessageFilter method with valid " +
+    "'semKeyId' parameter" in {
+
+    val shhNewMessageFilterObject = ShhNewMessageFilterObject(
+      Some("2cdfa2ec2c3b37849cfeac5aff6670080df05dcdcd12d4d02b9c7f961f03f5e9"),
+      None,
+      None,
+      "0x048229fb947363cf13bb9f9532e124f08840cd6287ecae6b537cda2947ec2b23dbdc3a07bdf7cd2bfb288c25c4d0d0461d91c719da736a22b7bebbcf912298d1e6",
+      12.3f,
+      2.3f,
+      List("0x5a4ea131", "0x11223344"),
+      allowP2P = false
+    )
+    val rq = GenericRequest(method = "shh_newMessageFilter", params = shhNewMessageFilterObject :: Nil)
+    val rs = GenericResponse("2.0", 33, None, Some("c74ebb1d35fc4bda5c9e8fa45550a27d9872dcc92077eace2fd660cb8c4a19a1"))
+
+    val response = service(rq, rs).shhNewMessageFilter(shhNewMessageFilterObject)
+
+    response.right.get.result shouldBe "c74ebb1d35fc4bda5c9e8fa45550a27d9872dcc92077eace2fd660cb8c4a19a1"
+  }
+  it should "return Error object, when invoking shhPost method with invalid 'padding' parameter" in {
+
+    val shhMessageObject = ShhMessageObject(
+      None,
+      Some("0x048229fb947363cf13bb9f9532e124f08840cd6287ecae6b537cda2947ec2b23dbdc3a07bdf7cd2bfb288c25c4d0d0461d91c719da736a22b7bebbcf912298d1e6"),
+      None,
+      7,
+      List("0x07678231"),
+      "0x0",
+      "0x68656c6c6f",
+      2,
+      2.01f,
+      None
+    )
+    val rq = GenericRequest(method = "shh_post", params = shhMessageObject :: Nil)
+    val rs = GenericResponse("2.0", 33,
+      Some(
+        ErrorContent(-32602,
+          "invalid argument 0: json: cannot unmarshal hex string of odd length into Go struct field NewMessage.padding of type hexutil.Bytes"
+        )
+      ), Some(AnyRef)
+    )
+
+    val response = service(rq, rs).shhPost(shhMessageObject)
+
+    response.left.get.error shouldBe a [ErrorContent]
+    response.left.get.error.code shouldBe -32602
+    response.left.get.error.message shouldBe
+      "invalid argument 0: json: cannot unmarshal hex string of odd length into Go struct field NewMessage.padding of type hexutil.Bytes"
+  }
+  it should "return boolean result of sending a whisper message, when invoking shhPost method with valid parameters" in {
+
+    val shhMessageObject = ShhMessageObject(
+      None,
+      Some("0x048229fb947363cf13bb9f9532e124f08840cd6287ecae6b537cda2947ec2b23dbdc3a07bdf7cd2bfb288c25c4d0d0461d91c719da736a22b7bebbcf912298d1e6"),
+      None,
+      7,
+      List("0x07678231"),
+      "0x52fdfc072182654f163f5f0f9a621d729566c74d10037c4d7bbb0407d1e2c64981855ad8681d0d86d1e91e00167939cb6694d2c422acd208a0072939487f6999eb9d18a44784045d87f3c67cf22746e995af5a25367951baa2ff6cd471c483f15fb90badb37c5821b6d95526a41a9504680b4e7c8b76",
+      "0x68656c6c6f",
+      2,
+      2.01f,
+      None
+    )
+    val rq = GenericRequest(method = "shh_post", params = shhMessageObject :: Nil)
+    val rs = GenericResponse("2.0", 33, None, Some(true))
+
+    val response = service(rq, rs).shhPost(shhMessageObject)
+
+    response.right.get.result shouldBe true
   }
 
 }
