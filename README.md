@@ -8,6 +8,10 @@ language.
 Lightweight, efficient, using Scala idioms, it spares you the trouble of writing own low-level code controlling the 
 work of Ethereum nodes.  
 
+## Features
+
+* Complete implementation of [JSON-RPC](https://github.com/ethereum/wiki/wiki/JSON-RPC) Ethereum client API over HTTP
+* Support for [Whisper v5](https://github.com/ethereum/go-ethereum/wiki/Whisper)
 
 ## Getting started
 
@@ -17,7 +21,7 @@ work of Ethereum nodes.
 
 #### Ethereum client
 
-    $ geth --rpcapi personal,db,eth,net,web3 --rpc --testnet
+    $ geth --rpcapi personal,db,eth,net,web3,shh --shh --rpc --testnet
 
 #### Sending requests
 
