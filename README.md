@@ -11,13 +11,13 @@ work of Ethereum nodes.
 ## Features
 
 * Complete implementation of [JSON-RPC](https://github.com/ethereum/wiki/wiki/JSON-RPC) Ethereum client API over HTTP
-* Support for [Whisper v5](https://github.com/ethereum/go-ethereum/wiki/Whisper)
+* Support for [Whisper v5](https://github.com/ethereum/go-ethereum/wiki/Whisper) (work in-progress)
 
 ## Getting started
 
 #### SBT
 
-    $ sbt package
+    libraryDependencies += "org.web3scala" % "core" % "0.1.0"
 
 #### Ethereum client
 
